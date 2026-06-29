@@ -1,0 +1,44 @@
+# --- Secrets / keys (NEVER commit) ---
+keystore.json
+*keystore*.json
+validator_key.json
+*_key.json
+keyfile.json
+*.pem
+
+# --- Local toolchain (downloaded, not source) ---
+.tools/
+
+# --- Build artifacts ---
+# cross-compiled plugin binaries (built on Windows for linux/amd64)
+plugin/go/go-plugin
+plugin/go/veritas-plugin-linux-amd64
+plugin/go/*-linux-amd64
+plugin/go/*-linux-arm64
+# compiled Go binaries (extensionless ELF outputs — the source lives in the package)
+plugin/go/veritas-sign
+plugin/go/veritas-sign-linux
+plugin/go/tutorial/tutorial
+cli/veritas
+*.exe
+*.test
+*.out
+
+# --- Node runtime / data ---
+.canopy/
+node-data/
+*.pid
+*.log
+
+# --- Frontend ---
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+node_modules/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

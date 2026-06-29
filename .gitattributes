@@ -1,0 +1,19 @@
+# Veritas runs on Linux (Canopy node + plugin in WSL2), but is developed on Windows.
+# Force LF on checkout for all text so shell scripts, Go source, and protos never get
+# CRLF-corrupted regardless of a contributor's core.autocrlf setting.
+* text=auto eol=lf
+
+# Scripts that MUST stay LF (executed in WSL/Linux).
+*.sh   text eol=lf
+*.py   text eol=lf
+
+# Windows-only scripts keep CRLF (none yet, but future-proof).
+*.bat  text eol=crlf
+*.ps1  text eol=crlf
+
+# Binary assets — never touch line endings.
+*.exe  binary
+*.zip  binary
+*.png  binary
+*.jpg  binary
+*.gif  binary
