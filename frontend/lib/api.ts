@@ -45,6 +45,7 @@ export const api = {
     postJSON<{ noteId: string; txHash: string }>("/api/note", { identity, claimId, body, url }),
   rate: (identity: string, noteId: string, value: string) =>
     postJSON<{ txHash: string }>("/api/rate", { identity, noteId, value }),
+  seed: () => postJSON<{ seedClaim: string; targetClaim: string; targetNote: string; hint: string }>("/api/seed", {}),
 };
 
 // fp formats a fixed-point (×1e6) on-chain value as a 0–1 score string (display only).

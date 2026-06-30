@@ -100,6 +100,7 @@ function AppInner() {
       {/* FLOATING ACTION BAR */}
       <div style={css("position:fixed;left:50%;bottom:26px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;background:oklch(0.175 0.008 80);border:1px solid oklch(0.32 0.008 80);border-radius:999px;padding:7px 8px;box-shadow:0 10px 40px rgba(0,0,0,.5);z-index:7;")}>
         <button onClick={() => setOverlay("submit")} style={css(`font-family:${MONO};font-size:12.5px;color:oklch(0.16 0.03 152);background:oklch(0.74 0.15 152);font-weight:600;padding:10px 18px;border-radius:999px;`)}>＋ submit</button>
+        <button disabled={busy === "seed"} onClick={() => act("seed", async () => { const r = await api.seed(); alert(r.hint); })} style={css(`font-family:${MONO};font-size:12.5px;color:oklch(0.82 0.006 95);padding:10px 16px;border-radius:999px;`)}>{busy === "seed" ? "seeding…" : "⟲ seed demo"}</button>
         <button onClick={() => setOverlay("rep")} style={css(`font-family:${MONO};font-size:12.5px;color:oklch(0.82 0.006 95);padding:10px 16px;border-radius:999px;`)}>◆ reputation</button>
         <button onClick={() => setOverlay("live")} style={css(`font-family:${MONO};font-size:12.5px;color:oklch(0.82 0.006 95);padding:10px 16px;border-radius:999px;display:flex;align-items:center;gap:7px;`)}>
           <span style={css("width:7px;height:7px;border-radius:50%;background:oklch(0.74 0.15 152);display:inline-block;")} />live

@@ -367,6 +367,94 @@ func (g *gateway) handleRate(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]interface{}{"txHash": txHash})
 }
 
+// ---- seed scenario (one-click polarized demo) ----
+
+func (g *gateway) submitClaimAs(id, text, url string) ([]byte, error) {
+	priv, addr, err := g.resolveIdent(id)
+	if err != nil {
+		return nil, err
+	}
+	nonce := g.nextNonce()
+	ch := sha256.Sum256([]byte(text))
+	_, h, err := g.cli.BuildAndSubmit("submit_claim", &contract.MessageSubmitClaim{Submitter: addr, ContentHash: ch[:8], Url: url, Text: text, Nonce: nonce}, priv)
+	if err != nil {
+		return nil, err
+	}
+	return contract.DeriveClaimID(addr, nonce, h), nil
+}
+
+func (g *gateway) submitNoteAs(id string, claimID []byte, body, url string) ([]byte, error) {
+	priv, addr, err := g.resolveIdent(id)
+	if err != nil {
+		return nil, err
+	}
+	nonce := g.nextNonce()
+	ch := sha256.Sum256([]byte(body))
+	_, h, err := g.cli.BuildAndSubmit("submit_note", &contract.MessageSubmitNote{Author: addr, ClaimId: claimID, Body: body, ContentHash: ch[:8], Url: url, Nonce: nonce}, priv)
+	if err != nil {
+		return nil, err
+	}
+	return contract.DeriveNoteID(addr, claimID, nonce, h), nil
+}
+
+func (g *gateway) rateAs(id string, noteID []byte, v contract.RatingValue) {
+	priv, addr, err := g.resolveIdent(id)
+	if err != nil {
+		return
+	}
+	if _, _, e := g.cli.BuildAndSubmit("rate_note", &contract.MessageRateNote{Rater: addr, NoteId: noteID, Value: v, Nonce: g.nextNonce()}, priv); e != nil {
+		log.Printf("seed rate %s failed: %v", id, e)
+	}
+}
+
+// handleSeed establishes a polarized cohort history (camp A vs camp B disagree on seed notes) and
+// posts a fresh target note pre-rated by camp A only — so a single camp-B rating bridges it to
+// HELPFUL. Synchronous (~20 txs); they land over the next blocks and the MF picks up polarity.
+func (g *gateway) handleSeed(w http.ResponseWriter, _ *http.Request) {
+	H, X := contract.RatingValue_RATING_HELPFUL, contract.RatingValue_RATING_NOT_HELPFUL
+	A := []string{"a1", "a2", "a3"}
+	B := []string{"b1", "b2", "b3"}
+	rateAll := func(ids []string, n []byte, v contract.RatingValue) {
+		for _, id := range ids {
+			g.rateAs(id, n, v)
+		}
+	}
+	cs, err := g.submitClaimAs("you", "Seed claim — macro chart with a shifted baseline", "https://example.org/seed")
+	if err != nil {
+		httpErr(w, fmt.Errorf("seed claim: %w (are identities funded yet?)", err))
+		return
+	}
+	s1, err1 := g.submitNoteAs("you", cs, "Seed note A — establishes the polarity axis.", "https://example.org/s1")
+	s2, err2 := g.submitNoteAs("you", cs, "Seed note B — establishes the polarity axis.", "https://example.org/s2")
+	if err1 != nil || err2 != nil {
+		httpErr(w, fmt.Errorf("seed notes failed"))
+		return
+	}
+	// polarize: camp A and camp B disagree, in both directions
+	rateAll(A, s1, H)
+	rateAll(B, s1, X)
+	rateAll(A, s2, X)
+	rateAll(B, s2, H)
+	// target: a real-looking claim + note, pre-rated HELPFUL by camp A only (mid-bridge)
+	ct, err := g.submitClaimAs("you", "This chart proves unemployment tripled under the new policy.", "https://bls.gov/data")
+	if err != nil {
+		httpErr(w, fmt.Errorf("target claim: %w", err))
+		return
+	}
+	t, err := g.submitNoteAs("you", ct, "The chart drops the 2019 baseline — the full series shows +14%, not 200%.", "https://bls.gov/series")
+	if err != nil {
+		httpErr(w, fmt.Errorf("target note: %w", err))
+		return
+	}
+	rateAll(A, t, H)
+	writeJSON(w, map[string]interface{}{
+		"seedClaim":  hex.EncodeToString(cs),
+		"targetClaim": hex.EncodeToString(ct),
+		"targetNote": hex.EncodeToString(t),
+		"hint":       "Polarity is seeding (~1 min for inclusion + scoring). Then switch to a camp-B identity and rate the target note Helpful to watch it bridge to HELPFUL.",
+	})
+}
+
 func decodeBody(w http.ResponseWriter, r *http.Request, v interface{}) bool {
 	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
 		httpErr(w, fmt.Errorf("bad json: %w", err))
@@ -423,6 +511,7 @@ func cmdServe(args []string) {
 	mux.HandleFunc("/api/claim", g.cors(g.handleClaim))
 	mux.HandleFunc("/api/note", g.cors(g.handleNote))
 	mux.HandleFunc("/api/rate", g.cors(g.handleRate))
+	mux.HandleFunc("/api/seed", g.cors(g.handleSeed))
 	log.Printf("veritas gateway listening on :%s (rpc=%s)", *port, g.cli.RPC)
 	if err := http.ListenAndServe(":"+*port, mux); err != nil {
 		log.Fatal(err)
