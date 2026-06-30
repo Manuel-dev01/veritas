@@ -7,7 +7,7 @@
 # It funds two camps, polarizes them with seed notes (so MF learns the latent axis), creates ONE target
 # note, then reveals the flip in two phases, printing the on-chain verdict at each.
 #
-# Run inside WSL after the node is up + the chain has a funded genesis (deploy/reset-chain.sh):
+# Run inside WSL after the node is up + the chain has a funded genesis (deploy/reset-clean.sh):
 #   cp /mnt/c/.../deploy/demo.sh ~/veritas/demo.sh && sed -i 's/\r$//' ~/veritas/demo.sh
 #   bash ~/veritas/demo.sh
 set -u

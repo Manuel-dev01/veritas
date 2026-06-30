@@ -3,7 +3,7 @@
 # read back the on-chain note intercepts. Two factions (A,B) are polarized by seed notes; the bridge
 # note (both factions helpful) must flip HELPFUL with note_intercept >= 400000 (=0.40), while the
 # one-sided note stays NEEDS_MORE and the panned note goes NOT_HELPFUL.
-# Run inside WSL (after reset-chain.sh + a few blocks):  bash ~/veritas/mf-verify.sh
+# Run inside WSL (after reset-clean.sh + relaunch + a few blocks):  bash ~/veritas/mf-verify.sh
 set -u
 V="$HOME/veritas/veritas"
 VKEY="$HOME/.canopy/validator_key.json"
