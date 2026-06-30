@@ -1,1 +1,3 @@
 .vercel
+# TypeScript incremental build cache (regenerated on every build)
+tsconfig.tsbuildinfo

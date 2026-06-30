@@ -20,14 +20,18 @@ export interface ChainState { height: number; claims: Claim[]; log: LogLine[] }
 export interface Identity { id: string; name: string; camp: string; address: string; reputation: number }
 export interface Account { address: string; scoreFp: number; camp: string; ledger: LogLine[] }
 
+// Sent on every gateway request. `ngrok-skip-browser-warning` bypasses the ngrok-free interstitial
+// (which otherwise returns an HTML warning page instead of our JSON); harmless on non-ngrok backends.
+const SKIP = { "ngrok-skip-browser-warning": "true" } as const;
+
 async function getJSON<T>(path: string): Promise<T> {
-  const r = await fetch(BASE + path);
+  const r = await fetch(BASE + path, { headers: { ...SKIP } });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
 async function postJSON<T>(path: string, body: unknown): Promise<T> {
   const r = await fetch(BASE + path, {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+    method: "POST", headers: { "Content-Type": "application/json", ...SKIP }, body: JSON.stringify(body),
   });
   const d = await r.json().catch(() => ({}));
   if (!r.ok || (d && d.error)) throw new Error((d && d.error) || `request failed (${r.status})`);

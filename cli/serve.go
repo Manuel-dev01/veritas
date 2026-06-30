@@ -231,7 +231,10 @@ func (g *gateway) addLog(ref string, height uint64, kind, text string) {
 func (g *gateway) cors(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		// "*" (valid with a wildcard origin / no credentials) so the browser preflight also accepts
+		// custom headers like ngrok-skip-browser-warning, which the frontend sends to bypass the
+		// ngrok-free interstitial.
+		w.Header().Set("Access-Control-Allow-Headers", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
@@ -256,6 +259,27 @@ func (g *gateway) handleState(w http.ResponseWriter, _ *http.Request) {
 	}
 	logCopy := append([]logLine(nil), g.log...)
 	writeJSON(w, map[string]interface{}{"height": g.height, "claims": claims, "log": logCopy})
+}
+
+// handleRoot answers "/" with a friendly status page so visiting the tunnel URL confirms the gateway is
+// live (instead of a bare 404). This gateway only serves /api/*; anything else stays a 404.
+func (g *gateway) handleRoot(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+	g.mu.Lock()
+	h := g.height
+	g.mu.Unlock()
+	w.Header().Set("Content-Type", "application/json")
+	writeJSON(w, map[string]interface{}{
+		"service":   "veritas-gateway",
+		"status":    "ok",
+		"height":    h,
+		"app":       "https://frontend-kappa-flax-87.vercel.app/app",
+		"endpoints": []string{"/api/state", "/api/identities", "/api/account", "/api/claim", "/api/note", "/api/rate", "/api/seed"},
+		"note":      "This is the Veritas API gateway, not the web app. Open the app URL above.",
+	})
 }
 
 func (g *gateway) handleIdentities(w http.ResponseWriter, _ *http.Request) {
@@ -505,6 +529,7 @@ func cmdServe(args []string) {
 	go g.indexerLoop()
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/", g.cors(g.handleRoot))
 	mux.HandleFunc("/api/state", g.cors(g.handleState))
 	mux.HandleFunc("/api/identities", g.cors(g.handleIdentities))
 	mux.HandleFunc("/api/account", g.cors(g.handleAccount))

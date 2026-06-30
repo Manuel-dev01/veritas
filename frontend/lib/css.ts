@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-// css parses a CSS declaration string (as used verbatim in the .dc.html mockups) into a React style
+// css parses a CSS declaration string (as used verbatim in the original design mockups) into a React style
 // object, so mockup inline styles port near-verbatim. Splits on ';' (no ';' appears inside our values
 // — gradients/oklch use only commas) and on the first ':' (values like linear-gradient have none).
 export function css(s: string): CSSProperties {

@@ -14,10 +14,9 @@ same model X and Meta run on private servers, here in the open and byte-reproduc
 </div>
 
 > [!NOTE]
-> The public `/app` reads live data through an **ephemeral cloudflared tunnel** to a locally-running
-> chain + gateway. If the tunnel/host is down, the landing still works fully (it's client-side) but the
-> app board may be empty. The reproducible, always-correct demo is **local** — see [Quickstart](#quickstart)
-> and [`DEMO.md`](DEMO.md).
+> The public `/app` reads live data from a locally-running chain + gateway exposed over a tunnel, so it
+> depends on the demo host being online; the landing page is fully client-side and always works. To run
+> the whole stack yourself, see [Quickstart](#quickstart).
 
 ---
 
@@ -167,7 +166,7 @@ veritas/
 │   ├── client.go query.go keys.go      build/sign/submit + event read/decode
 │   └── serve.go                        indexer + signer + CORS gateway
 ├── frontend/                           Next.js + TypeScript UI (landing + live app)
-├── deploy/                             build/run/verify scripts + DEMO driver
+├── deploy/                             build/run/verify scripts + demo driver
 └── docs/  VERITAS_SPEC.md · SCORING.md
 ```
 
@@ -205,11 +204,10 @@ The CLI also drives every tx type directly:
 
 ## Demo
 
-A ~2-minute recording script (and a one-command on-chain driver, `deploy/demo.sh`) lives in
-[`DEMO.md`](DEMO.md). The graded beat: rate a note **helpful from one camp only** → it stays
-`NEEDS_MORE_RATINGS`; add **the opposing camp** → at the next block `EndBlock` flips it to **HELPFUL**
-on-chain (note intercept crosses `0.40`). Every step is a real BLS-signed transaction landing in a
-block — no mocks.
+The graded beat: rate a note **helpful from one camp only** → it stays `NEEDS_MORE_RATINGS`; add **the
+opposing camp** → at the next block `EndBlock` flips it to **HELPFUL** on-chain (note intercept crosses
+`0.40`). Every step is a real BLS-signed transaction landing in a block — no mocks. `deploy/demo.sh`
+drives this end-to-end via the CLI for a zero-click reproduction.
 
 ---
 
@@ -222,7 +220,7 @@ block — no mocks.
 - [x] Determinism verified (1000×/shuffle byte-identical + two-run identical app-hash).
 - [x] "Why an app-chain, not a contract" justified (above).
 - [x] Open-source with README + one-line pitch.
-- [ ] Local demo video (script ready in [`DEMO.md`](DEMO.md) — recording is the final step).
+- [ ] Local demo video (the final step).
 
 ---
 

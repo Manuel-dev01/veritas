@@ -47,3 +47,6 @@ Thumbs.db
 # Root-anchored so the upstream Canopy template docs (plugin/go/AGENTS.md, …) stay tracked.
 /AGENTS.md
 /CLAUDE.md
+
+# --- Vercel link (project/org ids; recreated by `vercel link`) ---
+/.vercel
