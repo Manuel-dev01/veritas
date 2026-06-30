@@ -209,21 +209,6 @@ opposing camp** → at the next block `EndBlock` flips it to **HELPFUL** on-chai
 `0.40`). Every step is a real BLS-signed transaction landing in a block — no mocks. `deploy/demo.sh`
 drives this end-to-end via the CLI for a zero-click reproduction.
 
----
-
-## Definition of done (contest checklist)
-
-- [x] Original, Social-Fi-themed, functional — on-chain Community Notes.
-- [x] Built on a Canopy template (Go plugin + TypeScript frontend).
-- [x] Plugin defines custom transaction types (`SubmitClaim`, `SubmitNote`, `RateNote`).
-- [x] App interacts with a local Canopy chain via RPC (50002/50003) — no mocks.
-- [x] Determinism verified (1000×/shuffle byte-identical + two-run identical app-hash).
-- [x] "Why an app-chain, not a contract" justified (above).
-- [x] Open-source with README + one-line pitch.
-- [ ] Local demo video (the final step).
-
----
-
 ## Roadmap / out of scope for v1
 
 - `AttestSource` — committee/oracle attestation of external URL content hashes (a native Canopy
