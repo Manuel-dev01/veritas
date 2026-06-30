@@ -42,3 +42,8 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/
+
+# --- Internal operating manuals (kept local, not part of the public repo) ---
+# Root-anchored so the upstream Canopy template docs (plugin/go/AGENTS.md, …) stay tracked.
+/AGENTS.md
+/CLAUDE.md
