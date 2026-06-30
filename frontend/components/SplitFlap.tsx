@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { css } from "@/lib/css";
+import { useIsMobile } from "@/lib/useViewport";
 
 // SplitFlap — the airport-board status display, ported from the mockup. Tiles clatter through random
 // letters and settle (staggered) onto the target string; HELPFUL settles green.
@@ -9,11 +10,13 @@ const rc = () => CHARS[Math.floor(Math.random() * 26)];
 
 type Tile = { target: string; char: string; locked: boolean };
 
-function tileStyle(t: Tile, helpful: boolean, big: boolean): string {
-  const sz = big ? "width:30px;height:44px;font-size:22px;" : "width:26px;height:38px;font-size:18px;";
+function tileStyle(t: Tile, helpful: boolean, big: boolean, mobile: boolean): string {
+  const sz = big
+    ? mobile ? "width:22px;height:32px;font-size:15px;" : "width:30px;height:44px;font-size:22px;"
+    : mobile ? "width:19px;height:28px;font-size:13px;" : "width:26px;height:38px;font-size:18px;";
   const base =
     "flex:none;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600;border-radius:2px;" + sz;
-  if (t.target === " ") return big ? "width:14px;flex:none;" : "width:11px;flex:none;";
+  if (t.target === " ") return (big ? (mobile ? "width:10px;" : "width:14px;") : (mobile ? "width:8px;" : "width:11px;")) + "flex:none;";
   if (!t.locked)
     return base + "color:oklch(0.78 0.006 95);background:linear-gradient(to bottom, oklch(0.31 0.008 80) 0 47%, oklch(0.10 0.008 80) 47% 53%, oklch(0.27 0.008 80) 53% 100%);";
   if (helpful)
@@ -24,6 +27,7 @@ function tileStyle(t: Tile, helpful: boolean, big: boolean): string {
 // spinKey: bump to re-clatter even when `text` is unchanged (the mockup's periodic nextBlock cycle).
 // spinDelayMs: stagger the start of this row's spin (the mockup cascades rows by i*240ms).
 export function SplitFlap({ text, helpful = false, big = false, spinKey = 0, spinDelayMs = 0 }: { text: string; helpful?: boolean; big?: boolean; spinKey?: number; spinDelayMs?: number }) {
+  const mobile = useIsMobile();
   const [tiles, setTiles] = useState<Tile[]>(() => [...text].map((ch) => ({ target: ch, char: ch === " " ? " " : rc(), locked: ch === " " })));
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -69,9 +73,9 @@ export function SplitFlap({ text, helpful = false, big = false, spinKey = 0, spi
   }, [text, spinKey, spinDelayMs]);
 
   return (
-    <div style={{ display: "flex", gap: "4px", flex: "none", alignItems: "center" }}>
+    <div style={{ display: "flex", gap: mobile ? "3px" : "4px", flex: "none", alignItems: "center" }}>
       {tiles.map((t, i) => (
-        <span key={i} style={css(tileStyle(t, helpful, big))}>
+        <span key={i} style={css(tileStyle(t, helpful, big, mobile))}>
           {t.char}
         </span>
       ))}

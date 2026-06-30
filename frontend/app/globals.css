@@ -1,5 +1,5 @@
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: oklch(0.12 0.008 80); }
+html, body { margin: 0; padding: 0; background: oklch(0.12 0.008 80); overflow-x: hidden; max-width: 100%; }
 ::selection { background: oklch(0.74 0.15 152 / 0.3); color: #fff; }
 button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
 a { color: inherit; }

@@ -3,11 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { css } from "@/lib/css";
 import { useChain } from "@/lib/useChain";
+import { useIsMobile } from "@/lib/useViewport";
 import { SplitFlap } from "@/components/SplitFlap";
 
 const MONO = "'JetBrains Mono',monospace";
 
 export default function Landing() {
+  const mobile = useIsMobile();
   const { state } = useChain(3000);
   const height = state?.height || 184772;
   // board re-spin cadence — the mockup re-clatters every row every ~6.2s (its nextBlock cycle)
@@ -49,8 +51,8 @@ export default function Landing() {
       </div>
 
       {/* HERO */}
-      <section style={css("width:100%;padding:30px 44px 76px;")}>
-        <div style={css("display:flex;justify-content:space-between;align-items:center;margin-bottom:60px;")}>
+      <section style={css(`width:100%;padding:${mobile ? "24px 16px 52px" : "30px 44px 76px"};`)}>
+        <div style={css(`display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:${mobile ? "40px" : "60px"};`)}>
           <div style={css("display:flex;align-items:center;gap:11px;")}><Logo size={28} /><span style={css("font-size:19px;font-weight:800;letter-spacing:-0.03em;")}>Veritas</span></div>
           <div style={css(`display:flex;align-items:center;gap:22px;font-family:${MONO};font-size:12px;`)}>
             <Link href="/app" style={css("color:oklch(0.72 0.01 80);text-decoration:none;")}>product</Link>
@@ -63,17 +65,17 @@ export default function Landing() {
           <p style={css("font-size:clamp(17px,1.7vw,21px);line-height:1.5;color:oklch(0.80 0.008 95);max-width:54ch;margin:28px 0 0;")}>The bridging algorithm <strong style={css("color:oklch(0.95 0.006 95);font-weight:600;")}>X and Meta run on private servers</strong> runs here on-chain — recomputed every block, verifiable by anyone.</p>
         </div>
         {/* board */}
-        <div style={css("margin-top:56px;max-width:1320px;")}>
-          <div style={css("display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;")}>
+        <div style={css(`margin-top:${mobile ? "36px" : "56px"};max-width:1320px;`)}>
+          <div style={css("display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px;margin-bottom:14px;")}>
             <div style={css(`font-family:${MONO};font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:oklch(0.60 0.01 80);`)}>Public verdict board</div>
             <div style={css(`font-family:${MONO};font-size:12px;color:oklch(0.60 0.01 80);display:flex;align-items:center;gap:9px;`)}><span style={css("width:8px;height:8px;border-radius:50%;background:oklch(0.74 0.15 152);display:inline-block;box-shadow:0 0 0 4px oklch(0.74 0.15 152 / 0.2);")} />recompute · h:{height.toLocaleString()}</div>
           </div>
-          <div style={css("background:oklch(0.10 0.008 80);border:1px solid oklch(0.27 0.008 80);padding:10px 22px;")}>
+          <div style={css(`background:oklch(0.10 0.008 80);border:1px solid oklch(0.27 0.008 80);padding:${mobile ? "6px 12px" : "10px 22px"};`)}>
             {rows.map((r, i) => {
               const helpful = r.status === "HELPFUL";
               return (
-                <div key={i} style={css("display:flex;align-items:center;gap:28px;padding:20px 0;border-bottom:1px solid oklch(0.18 0.008 80);")}>
-                  <div style={css(`flex:1;min-width:0;font-family:'Archivo Narrow';font-weight:600;font-size:clamp(16px,1.55vw,22px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${helpful ? "oklch(0.86 0.006 95)" : "oklch(0.56 0.006 95)"};`)}>{r.claim}</div>
+                <div key={i} style={css(`display:flex;align-items:center;gap:${mobile ? "12px" : "28px"};padding:${mobile ? "16px 0" : "20px 0"};border-bottom:1px solid oklch(0.18 0.008 80);`)}>
+                  <div style={css(`flex:1;min-width:0;font-family:'Archivo Narrow';font-weight:600;font-size:clamp(15px,1.55vw,22px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${helpful ? "oklch(0.86 0.006 95)" : "oklch(0.56 0.006 95)"};`)}>{r.claim}</div>
                   <SplitFlap text={r.status} helpful={helpful} big spinKey={pulse} spinDelayMs={i * 240} />
                 </div>
               );
@@ -83,17 +85,17 @@ export default function Landing() {
       </section>
 
       {/* THESIS */}
-      <section style={css("background:oklch(0.96 0.006 95);color:oklch(0.21 0.008 80);padding:96px 44px;")}>
+      <section style={css(`background:oklch(0.96 0.006 95);color:oklch(0.21 0.008 80);padding:${mobile ? "60px 16px" : "96px 44px"};`)}>
         <div style={css("max-width:1240px;margin:0 auto;")}>
           <div style={css(`font-family:${MONO};font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:oklch(0.50 0.01 80);margin-bottom:30px;`)}>§ the rule that changes everything</div>
-          <div style={css("font-size:clamp(30px,4.6vw,62px);line-height:1.04;letter-spacing:-0.035em;font-weight:700;max-width:20ch;")}>A note goes <span style={css("color:oklch(0.55 0.16 152);")}>HELPFUL</span> only when people who normally <span style={css("color:oklch(0.55 0.13 38);")}>disagree</span> with each other <span style={css("color:oklch(0.50 0.11 250);")}>agree</span> it&apos;s fair.</div>
-          <div style={css("display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:64px;border-top:1.5px solid oklch(0.21 0.008 80);")}>
+          <div style={css("font-size:clamp(28px,4.6vw,62px);line-height:1.04;letter-spacing:-0.035em;font-weight:700;max-width:20ch;")}>A note goes <span style={css("color:oklch(0.55 0.16 152);")}>HELPFUL</span> only when people who normally <span style={css("color:oklch(0.55 0.13 38);")}>disagree</span> with each other <span style={css("color:oklch(0.50 0.11 250);")}>agree</span> it&apos;s fair.</div>
+          <div style={css(`display:grid;grid-template-columns:${mobile ? "1fr" : "repeat(3,1fr)"};gap:0;margin-top:${mobile ? "40px" : "64px"};border-top:1.5px solid oklch(0.21 0.008 80);`)}>
             {[
               ["01", "A simple majority can be brigaded. A coalition of people who agree on nothing else, can't."],
               ["02", "The bridging score measures exactly that — agreement that crosses the divide, not raw vote count."],
               ["03", "Here, that computation is a public transaction. The referee can't be bought because everyone holds the whistle."],
             ].map(([n, t], i) => (
-              <div key={i} style={css(`padding:26px ${i === 2 ? "0 26px 26px" : "26px"};${i < 2 ? "border-right:1px solid oklch(0.86 0.01 90);" : ""}${i === 0 ? "padding-left:0;" : ""}`)}>
+              <div key={i} style={css(mobile ? `padding:24px 0;${i < 2 ? "border-bottom:1px solid oklch(0.86 0.01 90);" : ""}` : `padding:26px ${i === 2 ? "0 26px 26px" : "26px"};${i < 2 ? "border-right:1px solid oklch(0.86 0.01 90);" : ""}${i === 0 ? "padding-left:0;" : ""}`)}>
                 <div style={css(`font-family:${MONO};font-size:54px;font-weight:500;letter-spacing:-0.03em;line-height:1;${n === "03" ? "color:oklch(0.55 0.16 152);" : ""}`)}>{n}</div>
                 <div style={css("font-size:16px;line-height:1.45;color:oklch(0.34 0.01 80);margin-top:16px;")}>{t}</div>
               </div>
@@ -106,18 +108,18 @@ export default function Landing() {
       <BridgingDemo />
 
       {/* VIDEO BAND */}
-      <section style={css("position:relative;height:560px;width:100%;overflow:hidden;background:oklch(0.115 0.008 80);border-top:1px solid oklch(0.30 0.008 80);border-bottom:1px solid oklch(0.30 0.008 80);")}>
+      <section style={css(`position:relative;height:${mobile ? "400px" : "560px"};width:100%;overflow:hidden;background:oklch(0.115 0.008 80);border-top:1px solid oklch(0.30 0.008 80);border-bottom:1px solid oklch(0.30 0.008 80);`)}>
         <EndBlockCanvas />
-        <div style={css(`position:absolute;top:26px;left:44px;font-family:${MONO};font-size:11px;color:oklch(0.60 0.01 80);letter-spacing:0.08em;z-index:2;`)}>[ EndBlock · recompute loop ]</div>
-        <div style={css(`position:absolute;top:26px;right:44px;font-family:${MONO};font-size:11px;color:oklch(0.60 0.01 80);z-index:2;`)}>notes enter pending · exit judged</div>
-        <div style={css("position:absolute;bottom:28px;left:44px;right:44px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;z-index:2;pointer-events:none;")}>
-          <div style={css("font-size:clamp(20px,2.5vw,32px);font-weight:700;letter-spacing:-0.02em;color:oklch(0.94 0.006 95);max-width:20ch;line-height:1.08;")}>Every block, the chain re-judges every note — live.</div>
-          <div style={css(`font-family:${MONO};font-size:12px;color:oklch(0.58 0.01 80);text-align:right;line-height:1.7;`)}>no operator · no private server<br />just the chain, scoring in the open</div>
+        <div style={css(`position:absolute;top:${mobile ? "18px" : "26px"};left:${mobile ? "16px" : "44px"};font-family:${MONO};font-size:11px;color:oklch(0.60 0.01 80);letter-spacing:0.08em;z-index:2;`)}>[ EndBlock · recompute loop ]</div>
+        {!mobile && <div style={css(`position:absolute;top:26px;right:44px;font-family:${MONO};font-size:11px;color:oklch(0.60 0.01 80);z-index:2;`)}>notes enter pending · exit judged</div>}
+        <div style={css(`position:absolute;bottom:${mobile ? "20px" : "28px"};left:${mobile ? "16px" : "44px"};right:${mobile ? "16px" : "44px"};display:flex;flex-direction:${mobile ? "column" : "row"};justify-content:space-between;align-items:flex-start;gap:${mobile ? "10px" : "24px"};z-index:2;pointer-events:none;`)}>
+          <div style={css("font-size:clamp(19px,2.5vw,32px);font-weight:700;letter-spacing:-0.02em;color:oklch(0.94 0.006 95);max-width:20ch;line-height:1.08;")}>Every block, the chain re-judges every note — live.</div>
+          <div style={css(`font-family:${MONO};font-size:12px;color:oklch(0.58 0.01 80);text-align:${mobile ? "left" : "right"};line-height:1.7;flex:none;`)}>no operator · no private server<br />just the chain, scoring in the open</div>
         </div>
       </section>
 
       {/* HOW IT WORKS */}
-      <section style={css("background:oklch(0.96 0.006 95);color:oklch(0.21 0.008 80);padding:96px 44px;")}>
+      <section style={css(`background:oklch(0.96 0.006 95);color:oklch(0.21 0.008 80);padding:${mobile ? "60px 16px" : "96px 44px"};`)}>
         <div style={css("max-width:1240px;margin:0 auto;")}>
           <div style={css(`font-family:${MONO};font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:oklch(0.50 0.01 80);margin-bottom:44px;`)}>§ the loop</div>
           {[
@@ -126,7 +128,7 @@ export default function Landing() {
             ["step 03", "EndBlock recomputes the bridge", "Every block, the plugin re-scores every note via fixed-point matrix factorization. Cross-camp agreement clears the threshold → HELPFUL.", "EndBlock()\n∀ note: re-score\nstate → HELPFUL"],
             ["step 04", "Reputation settles, honestly", "Helping the bridge builds reputation. Gaming it decays reputation. The score is non-transferable — earned, never bought.", "rep += honest\nrep −= bad_faith\nsoulbound"],
           ].map(([s, h, d, code], i) => (
-            <div key={i} style={css(`display:grid;grid-template-columns:90px 1fr 0.8fr;gap:30px;align-items:start;padding:30px 0;border-top:${i === 0 ? "1.5px" : "1px"} solid ${i === 0 ? "oklch(0.21 0.008 80)" : "oklch(0.86 0.01 90)"};`)}>
+            <div key={i} style={css(`display:grid;grid-template-columns:${mobile ? "1fr" : "90px 1fr 0.8fr"};gap:${mobile ? "12px" : "30px"};align-items:start;padding:${mobile ? "24px 0" : "30px 0"};border-top:${i === 0 ? "1.5px" : "1px"} solid ${i === 0 ? "oklch(0.21 0.008 80)" : "oklch(0.86 0.01 90)"};`)}>
               <div style={css(`font-family:${MONO};font-size:13px;color:${s === "step 03" ? "oklch(0.55 0.16 152)" : "oklch(0.50 0.01 80)"};`)}>{s}</div>
               <div><div style={css("font-size:26px;font-weight:700;letter-spacing:-0.02em;")}>{h}</div><div style={css("font-size:16px;color:oklch(0.34 0.01 80);margin-top:8px;line-height:1.45;")}>{d}</div></div>
               <div style={css(`font-family:${MONO};font-size:12px;color:oklch(0.45 0.01 80);line-height:1.9;white-space:pre-line;`)}>{code}</div>
@@ -136,7 +138,7 @@ export default function Landing() {
       </section>
 
       {/* CTA */}
-      <section style={css("background:oklch(0.15 0.008 80);color:oklch(0.95 0.006 95);padding:110px 44px;")}>
+      <section style={css(`background:oklch(0.15 0.008 80);color:oklch(0.95 0.006 95);padding:${mobile ? "72px 16px" : "110px 44px"};`)}>
         <div style={css("max-width:760px;margin:0 auto;text-align:center;")}>
           <Logo size={46} />
           <h2 style={css("font-size:clamp(34px,5vw,64px);line-height:1.0;letter-spacing:-0.04em;font-weight:800;margin:24px 0 24px;")}>Don&apos;t trust the referee.<br />Read it.</h2>
@@ -145,7 +147,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer style={css(`background:oklch(0.13 0.008 80);border-top:1px solid oklch(0.30 0.008 80);padding:30px 44px;display:flex;justify-content:space-between;align-items:center;font-family:${MONO};font-size:12px;color:oklch(0.58 0.01 80);`)}>
+      <footer style={css(`background:oklch(0.13 0.008 80);border-top:1px solid oklch(0.30 0.008 80);padding:${mobile ? "24px 16px" : "30px 44px"};display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;font-family:${MONO};font-size:12px;color:oklch(0.58 0.01 80);`)}>
         <div>veritas · sovereign chain · bridging on-chain</div>
         <Link href="/app" style={css("color:oklch(0.58 0.01 80);text-decoration:none;")}>product</Link>
       </footer>
@@ -165,6 +167,7 @@ function Logo({ size }: { size: number }) {
 
 // client-side teaching demo (simplified bridging, per the mockup's own note)
 function BridgingDemo() {
+  const mobile = useIsMobile();
   const [a, setA] = useState([true, true, false, true, false]);
   const [b, setB] = useState([false, true, true, false, false]);
   const ca = a.filter(Boolean).length, cb = b.filter(Boolean).length;
@@ -182,19 +185,19 @@ function BridgingDemo() {
   };
   const statusStyle = helpful ? "background:oklch(0.74 0.15 152);color:oklch(0.16 0.03 152);" : status === "NEEDS RATINGS" ? "background:oklch(0.30 0.008 80);color:oklch(0.72 0.01 80);" : "background:oklch(0.95 0.006 95);color:oklch(0.18 0.008 80);";
   return (
-    <section style={css("background:oklch(0.13 0.008 80);color:oklch(0.95 0.006 95);padding:96px 44px;")}>
+    <section style={css(`background:oklch(0.13 0.008 80);color:oklch(0.95 0.006 95);padding:${mobile ? "56px 16px" : "96px 44px"};`)}>
       <div style={css("max-width:1240px;margin:0 auto;")}>
         <div style={css(`font-family:${MONO};font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:oklch(0.74 0.15 152);margin-bottom:14px;`)}>§ run the referee yourself</div>
-        <h2 style={css("font-size:clamp(28px,3.6vw,46px);line-height:1.05;letter-spacing:-0.03em;font-weight:700;margin:0 0 50px;max-width:18ch;")}>Toggle who agrees. Watch the status decide itself.</h2>
-        <div style={css("display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:0;border:1px solid oklch(0.30 0.008 80);align-items:stretch;")}>
-          <div style={css("padding:30px 28px;border-right:1px solid oklch(0.30 0.008 80);")}>
+        <h2 style={css("font-size:clamp(26px,3.6vw,46px);line-height:1.05;letter-spacing:-0.03em;font-weight:700;margin:0 0 36px;max-width:18ch;")}>Toggle who agrees. Watch the status decide itself.</h2>
+        <div style={css(`display:grid;grid-template-columns:${mobile ? "1fr" : "1fr 1.5fr 1fr"};gap:0;border:1px solid oklch(0.30 0.008 80);align-items:stretch;`)}>
+          <div style={css(`padding:${mobile ? "22px 18px" : "30px 28px"};${mobile ? "border-bottom" : "border-right"}:1px solid oklch(0.30 0.008 80);`)}>
             <div style={css(`font-family:${MONO};font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.66 0.13 38);margin-bottom:6px;`)}>Camp A · clay</div>
             <div style={css(`font-family:${MONO};font-size:11px;color:oklch(0.55 0.01 80);margin-bottom:22px;`)}>{ca}/5 rate helpful</div>
             <div style={css("display:flex;flex-direction:column;gap:10px;")}>
               {a.map((on, i) => <button key={i} onClick={() => setA((s) => s.map((v, j) => (j === i ? !v : v)))} style={css(raterBtn(on, "a"))}>rater_a{i + 1} · {on ? "helpful" : "—"}</button>)}
             </div>
           </div>
-          <div style={css("padding:30px 32px;border-right:1px solid oklch(0.30 0.008 80);display:flex;flex-direction:column;justify-content:space-between;gap:24px;")}>
+          <div style={css(`padding:${mobile ? "22px 18px" : "30px 32px"};${mobile ? "border-bottom" : "border-right"}:1px solid oklch(0.30 0.008 80);display:flex;flex-direction:column;justify-content:space-between;gap:24px;`)}>
             <div style={css(helpful ? "padding:22px;border:1px solid oklch(0.74 0.15 152);background:oklch(0.74 0.15 152 / 0.10);box-shadow:0 0 0 4px oklch(0.74 0.15 152 / 0.08);transition:all .3s;" : "padding:22px;border:1px solid oklch(0.30 0.008 80);background:oklch(0.16 0.008 80);transition:all .3s;")}>
               <div style={css(`font-family:${MONO};font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.60 0.01 80);margin-bottom:12px;`)}>Note attached to a claim</div>
               <div style={css("font-size:18px;line-height:1.4;font-weight:500;")}>&quot;The chart drops the 2019 baseline, which makes the rise look ~3× steeper than it is. Full series: bls.gov/data.&quot;</div>
@@ -211,7 +214,7 @@ function BridgingDemo() {
               <div style={css(`font-family:${MONO};font-size:12px;line-height:1.5;color:oklch(0.70 0.01 80);`)}>{explain}</div>
             </div>
           </div>
-          <div style={css("padding:30px 28px;")}>
+          <div style={css(`padding:${mobile ? "22px 18px" : "30px 28px"};`)}>
             <div style={css(`font-family:${MONO};font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.62 0.11 250);margin-bottom:6px;`)}>Camp B · slate</div>
             <div style={css(`font-family:${MONO};font-size:11px;color:oklch(0.55 0.01 80);margin-bottom:22px;`)}>{cb}/5 rate helpful</div>
             <div style={css("display:flex;flex-direction:column;gap:10px;")}>

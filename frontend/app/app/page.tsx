@@ -4,6 +4,7 @@ import { css } from "@/lib/css";
 import { api, fp, Account, Claim, Note } from "@/lib/api";
 import { useChain } from "@/lib/useChain";
 import { IdentityProvider, useIdentity } from "@/lib/identity";
+import { useIsMobile } from "@/lib/useViewport";
 import { SplitFlap } from "@/components/SplitFlap";
 
 const MONO = "'JetBrains Mono',monospace";
@@ -28,6 +29,7 @@ function primaryNote(c: Claim): Note | undefined {
 }
 
 function AppInner() {
+  const mobile = useIsMobile();
   const { state, refresh } = useChain(2000);
   const { identities, current, setCurrent, me } = useIdentity();
   const [overlay, setOverlay] = useState<null | "note" | "submit" | "rep" | "live">(null);
@@ -54,28 +56,28 @@ function AppInner() {
   return (
     <div style={css("font-family:'Archivo',sans-serif;background:oklch(0.12 0.008 80);color:oklch(0.95 0.006 95);min-height:100vh;width:100%;position:relative;")}>
       {/* TOP BAR */}
-      <header style={css("height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;border-bottom:1px solid oklch(0.22 0.008 80);position:sticky;top:0;background:oklch(0.115 0.008 80);z-index:6;")}>
-        <div style={css("display:flex;align-items:center;gap:11px;")}>
+      <header style={css(`height:58px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 ${mobile ? "14px" : "32px"};border-bottom:1px solid oklch(0.22 0.008 80);position:sticky;top:0;background:oklch(0.115 0.008 80);z-index:6;`)}>
+        <div style={css("display:flex;align-items:center;gap:11px;min-width:0;flex:none;")}>
           <Logo size={26} />
           <span style={css("font-size:18px;font-weight:800;letter-spacing:-0.03em;")}>Veritas</span>
-          <span style={css(`font-family:${MONO};font-size:12px;color:oklch(0.52 0.01 80);margin-left:6px;`)}>/ the ledger</span>
+          {!mobile && <span style={css(`font-family:${MONO};font-size:12px;color:oklch(0.52 0.01 80);margin-left:6px;`)}>/ the ledger</span>}
         </div>
-        <div style={css("display:flex;align-items:center;gap:18px;")}>
+        <div style={css(`display:flex;align-items:center;gap:${mobile ? "9px" : "18px"};min-width:0;`)}>
           <IdentitySwitcher />
-          <div style={css(`display:flex;align-items:center;gap:9px;font-family:${MONO};font-size:12px;color:oklch(0.62 0.01 80);`)}>
+          <div style={css(`display:flex;align-items:center;gap:8px;font-family:${MONO};font-size:12px;color:oklch(0.62 0.01 80);flex:none;`)}>
             <span style={css("width:8px;height:8px;border-radius:50%;background:oklch(0.74 0.15 152);display:inline-block;box-shadow:0 0 0 4px oklch(0.74 0.15 152 / 0.18);")} />
-            recompute · h:{height.toLocaleString()}
+            {mobile ? `h:${height.toLocaleString()}` : `recompute · h:${height.toLocaleString()}`}
           </div>
         </div>
       </header>
 
       {/* BOARD */}
-      <main style={css("max-width:1080px;margin:0 auto;padding:46px 32px 150px;")}>
-        <h1 style={css("font-size:32px;font-weight:800;letter-spacing:-0.035em;margin:0;")}>Public verdict board</h1>
+      <main style={css(`max-width:1080px;margin:0 auto;padding:${mobile ? "30px 16px 150px" : "46px 32px 150px"};`)}>
+        <h1 style={css(`font-size:${mobile ? "26px" : "32px"};font-weight:800;letter-spacing:-0.035em;margin:0;`)}>Public verdict board</h1>
         <p style={css(`font-family:${MONO};font-size:12.5px;color:oklch(0.55 0.01 80);margin:10px 0 0;`)}>Every note, re-judged every block. Click any row to open the record.</p>
 
-        <div style={css("position:relative;margin-top:34px;padding-left:96px;")}>
-          <div style={css("position:absolute;left:62px;top:6px;bottom:6px;width:1px;background:oklch(0.24 0.008 80);")} />
+        <div style={css(`position:relative;margin-top:${mobile ? "22px" : "34px"};padding-left:${mobile ? "0" : "96px"};`)}>
+          {!mobile && <div style={css("position:absolute;left:62px;top:6px;bottom:6px;width:1px;background:oklch(0.24 0.008 80);")} />}
           {claims.length === 0 && (
             <div style={css(`font-family:${MONO};font-size:13px;color:oklch(0.5 0.01 80);padding:20px 0;`)}>No claims yet — hit ＋ submit to post the first claim.</div>
           )}
@@ -84,12 +86,12 @@ function AppInner() {
             const helpful = label === "HELPFUL";
             return (
               <div key={c.id} style={{ position: "relative" }}>
-                <div style={css(`position:absolute;left:-96px;top:26px;width:50px;text-align:right;font-family:${MONO};font-size:11px;color:${helpful ? "oklch(0.55 0.13 152)" : "oklch(0.48 0.01 80)"};`)}>{c.height.toLocaleString()}</div>
-                <div style={css(`position:absolute;left:-34px;top:30px;width:7px;height:7px;border-radius:50%;background:${helpful ? "oklch(0.74 0.15 152)" : "oklch(0.40 0.008 80)"};box-shadow:0 0 0 3px oklch(0.12 0.008 80);`)} />
-                <button onClick={() => { setActiveClaim(c.id); setOverlay("note"); }} style={css("display:flex;align-items:center;gap:26px;width:100%;text-align:left;padding:18px 6px;border-bottom:1px solid oklch(0.19 0.008 80);border-radius:4px;")}>
-                  <div style={css(`flex:1;min-width:0;font-family:'Archivo Narrow';font-weight:600;font-size:21px;letter-spacing:0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${helpful ? "oklch(0.90 0.006 95)" : "oklch(0.62 0.006 95)"};`)}>{c.text || "(untitled claim)"}</div>
+                {!mobile && <div style={css(`position:absolute;left:-96px;top:26px;width:50px;text-align:right;font-family:${MONO};font-size:11px;color:${helpful ? "oklch(0.55 0.13 152)" : "oklch(0.48 0.01 80)"};`)}>{c.height.toLocaleString()}</div>}
+                {!mobile && <div style={css(`position:absolute;left:-34px;top:30px;width:7px;height:7px;border-radius:50%;background:${helpful ? "oklch(0.74 0.15 152)" : "oklch(0.40 0.008 80)"};box-shadow:0 0 0 3px oklch(0.12 0.008 80);`)} />}
+                <button onClick={() => { setActiveClaim(c.id); setOverlay("note"); }} style={css(`display:flex;align-items:center;gap:${mobile ? "12px" : "26px"};width:100%;text-align:left;padding:${mobile ? "15px 2px" : "18px 6px"};border-bottom:1px solid oklch(0.19 0.008 80);border-radius:4px;`)}>
+                  <div style={css(`flex:1;min-width:0;font-family:'Archivo Narrow';font-weight:600;font-size:${mobile ? "16px" : "21px"};letter-spacing:0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${helpful ? "oklch(0.90 0.006 95)" : "oklch(0.62 0.006 95)"};`)}>{mobile && <span style={css(`font-family:${MONO};font-size:10px;color:oklch(0.45 0.01 80);margin-right:8px;`)}>h{c.height.toLocaleString()}</span>}{c.text || "(untitled claim)"}</div>
                   <SplitFlap text={label} helpful={helpful} />
-                  <span style={css(`font-family:${MONO};font-size:15px;color:oklch(0.42 0.01 80);flex:none;width:16px;`)}>›</span>
+                  {!mobile && <span style={css(`font-family:${MONO};font-size:15px;color:oklch(0.42 0.01 80);flex:none;width:16px;`)}>›</span>}
                 </button>
               </div>
             );
@@ -98,11 +100,11 @@ function AppInner() {
       </main>
 
       {/* FLOATING ACTION BAR */}
-      <div style={css("position:fixed;left:50%;bottom:26px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;background:oklch(0.175 0.008 80);border:1px solid oklch(0.32 0.008 80);border-radius:999px;padding:7px 8px;box-shadow:0 10px 40px rgba(0,0,0,.5);z-index:7;")}>
-        <button onClick={() => setOverlay("submit")} style={css(`font-family:${MONO};font-size:12.5px;color:oklch(0.16 0.03 152);background:oklch(0.74 0.15 152);font-weight:600;padding:10px 18px;border-radius:999px;`)}>＋ submit</button>
-        <button disabled={busy === "seed"} onClick={() => act("seed", async () => { const r = await api.seed(); alert(r.hint); })} style={css(`font-family:${MONO};font-size:12.5px;color:oklch(0.82 0.006 95);padding:10px 16px;border-radius:999px;`)}>{busy === "seed" ? "seeding…" : "⟲ seed demo"}</button>
-        <button onClick={() => setOverlay("rep")} style={css(`font-family:${MONO};font-size:12.5px;color:oklch(0.82 0.006 95);padding:10px 16px;border-radius:999px;`)}>◆ reputation</button>
-        <button onClick={() => setOverlay("live")} style={css(`font-family:${MONO};font-size:12.5px;color:oklch(0.82 0.006 95);padding:10px 16px;border-radius:999px;display:flex;align-items:center;gap:7px;`)}>
+      <div style={css(`position:fixed;left:50%;bottom:${mobile ? "16px" : "26px"};transform:translateX(-50%);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;max-width:calc(100vw - 16px);background:oklch(0.175 0.008 80);border:1px solid oklch(0.32 0.008 80);border-radius:${mobile ? "22px" : "999px"};padding:${mobile ? "6px" : "7px 8px"};box-shadow:0 10px 40px rgba(0,0,0,.5);z-index:7;`)}>
+        <button onClick={() => setOverlay("submit")} style={css(`font-family:${MONO};font-size:${mobile ? "11.5px" : "12.5px"};color:oklch(0.16 0.03 152);background:oklch(0.74 0.15 152);font-weight:600;padding:${mobile ? "9px 13px" : "10px 18px"};border-radius:999px;white-space:nowrap;`)}>＋ submit</button>
+        <button disabled={busy === "seed"} onClick={() => act("seed", async () => { const r = await api.seed(); alert(r.hint); })} style={css(`font-family:${MONO};font-size:${mobile ? "11.5px" : "12.5px"};color:oklch(0.82 0.006 95);padding:${mobile ? "9px 12px" : "10px 16px"};border-radius:999px;white-space:nowrap;`)}>{busy === "seed" ? "seeding…" : mobile ? "⟲ seed" : "⟲ seed demo"}</button>
+        <button onClick={() => setOverlay("rep")} style={css(`font-family:${MONO};font-size:${mobile ? "11.5px" : "12.5px"};color:oklch(0.82 0.006 95);padding:${mobile ? "9px 12px" : "10px 16px"};border-radius:999px;white-space:nowrap;`)}>{mobile ? "◆ rep" : "◆ reputation"}</button>
+        <button onClick={() => setOverlay("live")} style={css(`font-family:${MONO};font-size:${mobile ? "11.5px" : "12.5px"};color:oklch(0.82 0.006 95);padding:${mobile ? "9px 12px" : "10px 16px"};border-radius:999px;display:flex;align-items:center;gap:7px;white-space:nowrap;`)}>
           <span style={css("width:7px;height:7px;border-radius:50%;background:oklch(0.74 0.15 152);display:inline-block;")} />live
         </button>
       </div>
@@ -130,15 +132,16 @@ function Logo({ size }: { size: number }) {
 }
 
 function IdentitySwitcher() {
+  const mobile = useIsMobile();
   const { identities, current, setCurrent } = useIdentity();
   const me = identities.find((i) => i.id === current);
   const campColor = me?.camp === "A" ? "oklch(0.66 0.13 38)" : me?.camp === "B" ? "oklch(0.62 0.11 250)" : "oklch(0.74 0.15 152)";
   return (
-    <div style={css(`display:flex;align-items:center;gap:8px;font-family:${MONO};font-size:12px;`)}>
-      <span style={css("color:oklch(0.5 0.01 80);")}>acting as</span>
-      <span style={css(`width:7px;height:7px;border-radius:50%;background:${campColor};display:inline-block;`)} />
+    <div style={css(`display:flex;align-items:center;gap:8px;font-family:${MONO};font-size:12px;min-width:0;`)}>
+      {!mobile && <span style={css("color:oklch(0.5 0.01 80);flex:none;")}>acting as</span>}
+      <span style={css(`width:7px;height:7px;border-radius:50%;background:${campColor};display:inline-block;flex:none;`)} />
       <select value={current} onChange={(e) => setCurrent(e.target.value)}
-        style={css(`font-family:${MONO};font-size:12px;background:oklch(0.18 0.008 80);color:oklch(0.88 0.006 95);border:1px solid oklch(0.32 0.008 80);border-radius:6px;padding:5px 8px;`)}>
+        style={css(`font-family:${MONO};font-size:12px;background:oklch(0.18 0.008 80);color:oklch(0.88 0.006 95);border:1px solid oklch(0.32 0.008 80);border-radius:6px;padding:5px 8px;min-width:0;max-width:${mobile ? "150px" : "none"};`)}>
         {identities.map((i) => (
           <option key={i.id} value={i.id}>{i.name}{i.camp !== "neutral" ? ` · camp ${i.camp}` : ""}</option>
         ))}
@@ -148,6 +151,7 @@ function IdentitySwitcher() {
 }
 
 function NoteOverlay({ claim, close, onRate, busy }: { claim?: Claim; close: () => void; onRate: (noteId: string, value: string) => void; busy: string }) {
+  const mobile = useIsMobile();
   const note = claim ? primaryNote(claim) : undefined;
   const status = note ? noteLabel(note.status) : "OPEN";
   const helpful = status === "HELPFUL";
@@ -160,13 +164,13 @@ function NoteOverlay({ claim, close, onRate, busy }: { claim?: Claim; close: () 
   const btnBase = `flex:1;font-family:${MONO};font-size:13px;padding:13px;border:1px solid oklch(0.32 0.008 80);background:oklch(0.18 0.008 80);color:oklch(0.82 0.006 95);`;
   return (
     <Panel width={920} close={close}>
-      <div style={css("display:flex;align-items:center;gap:22px;padding:22px 28px;border-bottom:1px solid oklch(0.26 0.008 80);background:oklch(0.115 0.008 80);")}>
-        <div style={css(`font-family:${MONO};font-size:11px;color:oklch(0.52 0.01 80);flex:none;`)}>claim {claim ? claim.id.slice(0, 8) : ""} /</div>
-        <div style={css("flex:1;min-width:0;font-family:'Archivo Narrow';font-weight:600;font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;")}>{claim?.text}</div>
+      <div style={css(`display:flex;align-items:center;gap:${mobile ? "10px" : "22px"};padding:${mobile ? "16px 16px" : "22px 28px"};border-bottom:1px solid oklch(0.26 0.008 80);background:oklch(0.115 0.008 80);`)}>
+        {!mobile && <div style={css(`font-family:${MONO};font-size:11px;color:oklch(0.52 0.01 80);flex:none;`)}>claim {claim ? claim.id.slice(0, 8) : ""} /</div>}
+        <div style={css(`flex:1;min-width:0;font-family:'Archivo Narrow';font-weight:600;font-size:${mobile ? "17px" : "22px"};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`)}>{claim?.text}</div>
         <SplitFlap text={status} helpful={helpful} />
         <CloseBtn close={close} />
       </div>
-      <div style={css("padding:28px;display:grid;grid-template-columns:1.45fr 1fr;gap:30px;")}>
+      <div style={css(`padding:${mobile ? "18px 16px" : "28px"};display:grid;grid-template-columns:${mobile ? "1fr" : "1.45fr 1fr"};gap:${mobile ? "20px" : "30px"};`)}>
         <div>
           <div style={css(`font-family:${MONO};font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.50 0.01 80);margin-bottom:12px;`)}>the note {note ? "· " + note.id.slice(0, 8) : ""}</div>
           {note ? (
@@ -260,6 +264,7 @@ function SubmitOverlay({ claims, close, onClaim, onNote, busy, current }: { clai
 }
 
 function RepOverlay({ me, close }: { me?: string; close: () => void }) {
+  const mobile = useIsMobile();
   const [acct, setAcct] = useState<Account | null>(null);
   useEffect(() => { if (me) api.account(me).then(setAcct).catch(() => {}); }, [me]);
   const camp = acct?.camp || "neutral";
@@ -272,7 +277,7 @@ function RepOverlay({ me, close }: { me?: string; close: () => void }) {
         <div><div style={css("font-size:21px;font-weight:700;letter-spacing:-0.02em;")}>Reputation</div><div style={css(`font-family:${MONO};font-size:11px;color:oklch(0.52 0.01 80);margin-top:4px;`)}>soulbound · non-transferable · earned, never bought</div></div>
         <CloseBtn close={close} />
       </div>
-      <div style={css("padding:26px 28px;display:grid;grid-template-columns:1fr 1.3fr;gap:24px;align-items:start;")}>
+      <div style={css(`padding:${mobile ? "18px 16px" : "26px 28px"};display:grid;grid-template-columns:${mobile ? "1fr" : "1fr 1.3fr"};gap:${mobile ? "18px" : "24px"};align-items:start;`)}>
         <div style={css("background:oklch(0.115 0.008 80);border:1px solid oklch(0.26 0.008 80);padding:26px;")}>
           <div style={css(`font-family:${MONO};font-size:11px;color:oklch(0.55 0.01 80);`)}>{me ? me.slice(0, 10) : ""}…</div>
           <div style={css("font-size:68px;font-weight:800;letter-spacing:-0.04em;line-height:1;margin:12px 0 4px;color:oklch(0.78 0.15 152);")}>{score}</div>
@@ -304,6 +309,7 @@ function RepOverlay({ me, close }: { me?: string; close: () => void }) {
 }
 
 function LiveOverlay({ height, claims, log, close }: { height: number; claims: Claim[]; log: { height: number; kind: string; text: string }[]; close: () => void }) {
+  const mobile = useIsMobile();
   const notesScored = claims.reduce((a, c) => a + (c.notes?.filter((n) => n.score).length || 0), 0);
   const flipped = claims.reduce((a, c) => a + (c.notes?.filter((n) => n.status === "HELPFUL").length || 0), 0);
   const lines = log.slice().reverse();
@@ -313,7 +319,7 @@ function LiveOverlay({ height, claims, log, close }: { height: number; claims: C
         <div style={css("display:flex;align-items:center;gap:11px;")}><span style={css("width:9px;height:9px;border-radius:50%;background:oklch(0.74 0.15 152);display:inline-block;box-shadow:0 0 0 4px oklch(0.74 0.15 152 / 0.2);")} /><div><div style={css("font-size:21px;font-weight:700;letter-spacing:-0.02em;")}>Live · EndBlock</div><div style={css(`font-family:${MONO};font-size:11px;color:oklch(0.52 0.01 80);margin-top:4px;`)}>every block, the plugin re-scores every dirty note — on-chain</div></div></div>
         <CloseBtn close={close} />
       </div>
-      <div style={css("padding:26px 28px;display:grid;grid-template-columns:1fr 1.2fr;gap:24px;align-items:start;")}>
+      <div style={css(`padding:${mobile ? "18px 16px" : "26px 28px"};display:grid;grid-template-columns:${mobile ? "1fr" : "1fr 1.2fr"};gap:${mobile ? "18px" : "24px"};align-items:start;`)}>
         <div style={css("background:oklch(0.115 0.008 80);border:1px solid oklch(0.26 0.008 80);padding:26px;")}>
           <div style={css(`font-family:${MONO};font-size:11px;color:oklch(0.55 0.01 80);`)}>current block</div>
           <div style={css(`font-family:${MONO};font-size:42px;font-weight:600;letter-spacing:-0.02em;line-height:1;margin:8px 0 22px;`)}>{height.toLocaleString()}</div>
@@ -337,8 +343,9 @@ function LiveOverlay({ height, claims, log, close }: { height: number; claims: C
 }
 
 function Panel({ width, close, children }: { width: number; close: () => void; children: React.ReactNode }) {
+  const mobile = useIsMobile();
   return (
-    <div style={css(`position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:${width}px;max-width:calc(100vw - 48px);max-height:calc(100vh - 60px);overflow-y:auto;background:oklch(0.155 0.008 80);border:1px solid oklch(0.34 0.008 80);box-shadow:0 40px 100px rgba(0,0,0,.6);z-index:9;animation:ovLift .34s cubic-bezier(.16,1,.3,1) both;will-change:transform,opacity;`)}>
+    <div style={css(`position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:${width}px;max-width:calc(100vw - ${mobile ? "20px" : "48px"});max-height:calc(100vh - ${mobile ? "32px" : "60px"});overflow-y:auto;background:oklch(0.155 0.008 80);border:1px solid oklch(0.34 0.008 80);box-shadow:0 40px 100px rgba(0,0,0,.6);z-index:9;animation:ovLift .34s cubic-bezier(.16,1,.3,1) both;will-change:transform,opacity;`)}>
       {children}
     </div>
   );
