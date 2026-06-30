@@ -10,6 +10,12 @@ const MONO = "'JetBrains Mono',monospace";
 export default function Landing() {
   const { state } = useChain(3000);
   const height = state?.height || 184772;
+  // board re-spin cadence — the mockup re-clatters every row every ~6.2s (its nextBlock cycle)
+  const [pulse, setPulse] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setPulse((p) => p + 1), 6200);
+    return () => clearInterval(t);
+  }, []);
   // board: live claims (top 3) if present, else illustrative
   const liveRows = (state?.claims || []).slice(0, 3).map((c) => ({
     claim: c.text || "(untitled claim)",
@@ -68,7 +74,7 @@ export default function Landing() {
               return (
                 <div key={i} style={css("display:flex;align-items:center;gap:28px;padding:20px 0;border-bottom:1px solid oklch(0.18 0.008 80);")}>
                   <div style={css(`flex:1;min-width:0;font-family:'Archivo Narrow';font-weight:600;font-size:clamp(16px,1.55vw,22px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${helpful ? "oklch(0.86 0.006 95)" : "oklch(0.56 0.006 95)"};`)}>{r.claim}</div>
-                  <SplitFlap text={r.status} helpful={helpful} big />
+                  <SplitFlap text={r.status} helpful={helpful} big spinKey={pulse} spinDelayMs={i * 240} />
                 </div>
               );
             })}

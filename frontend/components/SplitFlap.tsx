@@ -21,7 +21,9 @@ function tileStyle(t: Tile, helpful: boolean, big: boolean): string {
   return base + "color:oklch(0.84 0.006 95);background:linear-gradient(to bottom, oklch(0.33 0.008 80) 0 47%, oklch(0.11 0.008 80) 47% 53%, oklch(0.28 0.008 80) 53% 100%);";
 }
 
-export function SplitFlap({ text, helpful = false, big = false }: { text: string; helpful?: boolean; big?: boolean }) {
+// spinKey: bump to re-clatter even when `text` is unchanged (the mockup's periodic nextBlock cycle).
+// spinDelayMs: stagger the start of this row's spin (the mockup cascades rows by i*240ms).
+export function SplitFlap({ text, helpful = false, big = false, spinKey = 0, spinDelayMs = 0 }: { text: string; helpful?: boolean; big?: boolean; spinKey?: number; spinDelayMs?: number }) {
   const [tiles, setTiles] = useState<Tile[]>(() => [...text].map((ch) => ({ target: ch, char: ch === " " ? " " : rc(), locked: ch === " " })));
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -37,30 +39,34 @@ export function SplitFlap({ text, helpful = false, big = false }: { text: string
     return () => clearInterval(tick);
   }, []);
 
-  // re-spin whenever the target changes
+  // re-spin whenever the target changes OR the periodic spinKey ticks (re-clatter onto the same target)
   useEffect(() => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
     const targets = [...text];
-    setTiles(targets.map((ch) => (ch === " " ? { target: " ", char: " ", locked: true } : { target: ch, char: rc(), locked: false })));
-    let order = 0;
-    targets.forEach((ch, j) => {
-      if (ch === " ") return;
-      const delay = 380 + order * 80;
-      order++;
-      timers.current.push(
-        setTimeout(() => {
-          setTiles((ts) => {
-            const n = ts.slice();
-            if (!n[j]) return ts;
-            n[j] = { ...n[j], char: n[j].target, locked: true };
-            return n;
-          });
-        }, delay),
-      );
-    });
+    const begin = () => {
+      setTiles(targets.map((ch) => (ch === " " ? { target: " ", char: " ", locked: true } : { target: ch, char: rc(), locked: false })));
+      let order = 0;
+      targets.forEach((ch, j) => {
+        if (ch === " ") return;
+        const delay = 380 + order * 80;
+        order++;
+        timers.current.push(
+          setTimeout(() => {
+            setTiles((ts) => {
+              const n = ts.slice();
+              if (!n[j]) return ts;
+              n[j] = { ...n[j], char: n[j].target, locked: true };
+              return n;
+            });
+          }, delay),
+        );
+      });
+    };
+    if (spinDelayMs > 0) timers.current.push(setTimeout(begin, spinDelayMs));
+    else begin();
     return () => timers.current.forEach(clearTimeout);
-  }, [text]);
+  }, [text, spinKey, spinDelayMs]);
 
   return (
     <div style={{ display: "flex", gap: "4px", flex: "none", alignItems: "center" }}>
