@@ -406,7 +406,9 @@ type MessageSubmitNote struct {
 	// content_hash: optional hash of supporting material
 	ContentHash []byte `protobuf:"bytes,4,opt,name=content_hash,json=contentHash,proto3" json:"contentHash"` // @gotags: json:"contentHash"
 	// nonce: caller-chosen value for deterministic id derivation
-	Nonce         uint64 `protobuf:"varint,5,opt,name=nonce,proto3" json:"nonce,omitempty"`
+	Nonce uint64 `protobuf:"varint,5,opt,name=nonce,proto3" json:"nonce,omitempty"`
+	// url: optional source URL backing the note (additive; mirrors MessageSubmitClaim.url)
+	Url           string `protobuf:"bytes,6,opt,name=url,proto3" json:"url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -474,6 +476,13 @@ func (x *MessageSubmitNote) GetNonce() uint64 {
 		return x.Nonce
 	}
 	return 0
+}
+
+func (x *MessageSubmitNote) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
 }
 
 // MessageRateNote rates a note (one rating per note+rater; later ratings overwrite).
@@ -644,6 +653,7 @@ type Note struct {
 	ContentHash   []byte                 `protobuf:"bytes,5,opt,name=content_hash,json=contentHash,proto3" json:"contentHash"`        // @gotags: json:"contentHash"
 	CreatedHeight uint64                 `protobuf:"varint,6,opt,name=created_height,json=createdHeight,proto3" json:"createdHeight"` // @gotags: json:"createdHeight"
 	Status        NoteStatus             `protobuf:"varint,7,opt,name=status,proto3,enum=types.NoteStatus" json:"status,omitempty"`
+	Url           string                 `protobuf:"bytes,8,opt,name=url,proto3" json:"url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -725,6 +735,13 @@ func (x *Note) GetStatus() NoteStatus {
 		return x.Status
 	}
 	return NoteStatus_NOTE_STATUS_UNSPECIFIED
+}
+
+func (x *Note) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
 }
 
 // Rating is a persisted rating record (key prefix 26).
@@ -865,6 +882,7 @@ type ClaimCreatedEvent struct {
 	ContentHash   []byte                 `protobuf:"bytes,3,opt,name=content_hash,json=contentHash,proto3" json:"contentHash"` // @gotags: json:"contentHash"
 	Url           string                 `protobuf:"bytes,4,opt,name=url,proto3" json:"url,omitempty"`
 	CreatedHeight uint64                 `protobuf:"varint,5,opt,name=created_height,json=createdHeight,proto3" json:"createdHeight"` // @gotags: json:"createdHeight"
+	Text          string                 `protobuf:"bytes,6,opt,name=text,proto3" json:"text,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -934,6 +952,13 @@ func (x *ClaimCreatedEvent) GetCreatedHeight() uint64 {
 	return 0
 }
 
+func (x *ClaimCreatedEvent) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
 // NoteCreatedEvent is emitted by DeliverTx when a note is attached to a claim.
 type NoteCreatedEvent struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -944,6 +969,7 @@ type NoteCreatedEvent struct {
 	ContentHash   []byte                 `protobuf:"bytes,5,opt,name=content_hash,json=contentHash,proto3" json:"contentHash"`        // @gotags: json:"contentHash"
 	CreatedHeight uint64                 `protobuf:"varint,6,opt,name=created_height,json=createdHeight,proto3" json:"createdHeight"` // @gotags: json:"createdHeight"
 	Status        NoteStatus             `protobuf:"varint,7,opt,name=status,proto3,enum=types.NoteStatus" json:"status,omitempty"`              // initial status (NEEDS_MORE_RATINGS)
+	Url           string                 `protobuf:"bytes,8,opt,name=url,proto3" json:"url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1027,6 +1053,13 @@ func (x *NoteCreatedEvent) GetStatus() NoteStatus {
 	return NoteStatus_NOTE_STATUS_UNSPECIFIED
 }
 
+func (x *NoteCreatedEvent) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
 // NoteRatedEvent is emitted by DeliverTx when a rating lands (new or overwrite).
 type NoteRatedEvent struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1100,16 +1133,22 @@ func (x *NoteRatedEvent) GetCreatedHeight() uint64 {
 // It carries the full breakdown (cohort means/counts + bridge score) so the status (changed or not)
 // and the reason for it are observable over RPC and visualizable in the UI.
 type NoteScoredEvent struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	NoteId        []byte                 `protobuf:"bytes,1,opt,name=note_id,json=noteId,proto3" json:"noteId"`    // @gotags: json:"noteId"
-	ClaimId       []byte                 `protobuf:"bytes,2,opt,name=claim_id,json=claimId,proto3" json:"claimId"` // @gotags: json:"claimId"
-	Status        NoteStatus             `protobuf:"varint,3,opt,name=status,proto3,enum=types.NoteStatus" json:"status,omitempty"`
-	BridgeScore   int64                  `protobuf:"varint,4,opt,name=bridge_score,json=bridgeScore,proto3" json:"bridgeScore"` // @gotags: json:"bridgeScore"
-	MeanA         int64                  `protobuf:"varint,5,opt,name=mean_a,json=meanA,proto3" json:"meanA"`                   // @gotags: json:"meanA"
-	MeanB         int64                  `protobuf:"varint,6,opt,name=mean_b,json=meanB,proto3" json:"meanB"`                   // @gotags: json:"meanB"
-	CountA        uint32                 `protobuf:"varint,7,opt,name=count_a,json=countA,proto3" json:"countA"`                // @gotags: json:"countA"
-	CountB        uint32                 `protobuf:"varint,8,opt,name=count_b,json=countB,proto3" json:"countB"`                // @gotags: json:"countB"
-	Height        uint64                 `protobuf:"varint,9,opt,name=height,proto3" json:"height,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	NoteId      []byte                 `protobuf:"bytes,1,opt,name=note_id,json=noteId,proto3" json:"noteId"`    // @gotags: json:"noteId"
+	ClaimId     []byte                 `protobuf:"bytes,2,opt,name=claim_id,json=claimId,proto3" json:"claimId"` // @gotags: json:"claimId"
+	Status      NoteStatus             `protobuf:"varint,3,opt,name=status,proto3,enum=types.NoteStatus" json:"status,omitempty"`
+	BridgeScore int64                  `protobuf:"varint,4,opt,name=bridge_score,json=bridgeScore,proto3" json:"bridgeScore"` // @gotags: json:"bridgeScore"
+	MeanA       int64                  `protobuf:"varint,5,opt,name=mean_a,json=meanA,proto3" json:"meanA"`                   // @gotags: json:"meanA"
+	MeanB       int64                  `protobuf:"varint,6,opt,name=mean_b,json=meanB,proto3" json:"meanB"`                   // @gotags: json:"meanB"
+	CountA      uint32                 `protobuf:"varint,7,opt,name=count_a,json=countA,proto3" json:"countA"`                // @gotags: json:"countA"
+	CountB      uint32                 `protobuf:"varint,8,opt,name=count_b,json=countB,proto3" json:"countB"`                // @gotags: json:"countB"
+	Height      uint64                 `protobuf:"varint,9,opt,name=height,proto3" json:"height,omitempty"`
+	// matrix-factorization breakdown (the production scorer): a note is HELPFUL when note_intercept
+	// clears threshold; note_factor is its position on the latent polarity axis.
+	NoteIntercept int64  `protobuf:"varint,10,opt,name=note_intercept,json=noteIntercept,proto3" json:"noteIntercept"` // @gotags: json:"noteIntercept"
+	NoteFactor    int64  `protobuf:"varint,11,opt,name=note_factor,json=noteFactor,proto3" json:"noteFactor"`          // @gotags: json:"noteFactor"
+	GlobalMu      int64  `protobuf:"varint,12,opt,name=global_mu,json=globalMu,proto3" json:"globalMu"`                // @gotags: json:"globalMu"
+	NumRaters     uint32 `protobuf:"varint,13,opt,name=num_raters,json=numRaters,proto3" json:"numRaters"`             // @gotags: json:"numRaters"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1203,6 +1242,34 @@ func (x *NoteScoredEvent) GetCountB() uint32 {
 func (x *NoteScoredEvent) GetHeight() uint64 {
 	if x != nil {
 		return x.Height
+	}
+	return 0
+}
+
+func (x *NoteScoredEvent) GetNoteIntercept() int64 {
+	if x != nil {
+		return x.NoteIntercept
+	}
+	return 0
+}
+
+func (x *NoteScoredEvent) GetNoteFactor() int64 {
+	if x != nil {
+		return x.NoteFactor
+	}
+	return 0
+}
+
+func (x *NoteScoredEvent) GetGlobalMu() int64 {
+	if x != nil {
+		return x.GlobalMu
+	}
+	return 0
+}
+
+func (x *NoteScoredEvent) GetNumRaters() uint32 {
+	if x != nil {
+		return x.NumRaters
 	}
 	return 0
 }
@@ -1413,13 +1480,14 @@ const file_tx_proto_rawDesc = "" +
 	"\fcontent_hash\x18\x02 \x01(\fR\vcontentHash\x12\x10\n" +
 	"\x03url\x18\x03 \x01(\tR\x03url\x12\x12\n" +
 	"\x04text\x18\x04 \x01(\tR\x04text\x12\x14\n" +
-	"\x05nonce\x18\x05 \x01(\x04R\x05nonce\"\x93\x01\n" +
+	"\x05nonce\x18\x05 \x01(\x04R\x05nonce\"\xa5\x01\n" +
 	"\x11MessageSubmitNote\x12\x16\n" +
 	"\x06author\x18\x01 \x01(\fR\x06author\x12\x19\n" +
 	"\bclaim_id\x18\x02 \x01(\fR\aclaimId\x12\x12\n" +
 	"\x04body\x18\x03 \x01(\tR\x04body\x12!\n" +
 	"\fcontent_hash\x18\x04 \x01(\fR\vcontentHash\x12\x14\n" +
-	"\x05nonce\x18\x05 \x01(\x04R\x05nonce\"\x80\x01\n" +
+	"\x05nonce\x18\x05 \x01(\x04R\x05nonce\x12\x10\n" +
+	"\x03url\x18\x06 \x01(\tR\x03url\"\x80\x01\n" +
 	"\x0fMessageRateNote\x12\x14\n" +
 	"\x05rater\x18\x01 \x01(\fR\x05rater\x12\x17\n" +
 	"\anote_id\x18\x02 \x01(\fR\x06noteId\x12(\n" +
@@ -1431,7 +1499,7 @@ const file_tx_proto_rawDesc = "" +
 	"\x03url\x18\x03 \x01(\tR\x03url\x12\x12\n" +
 	"\x04text\x18\x04 \x01(\tR\x04text\x12\x1c\n" +
 	"\tsubmitter\x18\x05 \x01(\fR\tsubmitter\x12%\n" +
-	"\x0ecreated_height\x18\x06 \x01(\x04R\rcreatedHeight\"\xd2\x01\n" +
+	"\x0ecreated_height\x18\x06 \x01(\x04R\rcreatedHeight\"\xe4\x01\n" +
 	"\x04Note\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12\x19\n" +
 	"\bclaim_id\x18\x02 \x01(\fR\aclaimId\x12\x16\n" +
@@ -1439,7 +1507,8 @@ const file_tx_proto_rawDesc = "" +
 	"\x04body\x18\x04 \x01(\tR\x04body\x12!\n" +
 	"\fcontent_hash\x18\x05 \x01(\fR\vcontentHash\x12%\n" +
 	"\x0ecreated_height\x18\x06 \x01(\x04R\rcreatedHeight\x12)\n" +
-	"\x06status\x18\a \x01(\x0e2\x11.types.NoteStatusR\x06status\"\x88\x01\n" +
+	"\x06status\x18\a \x01(\x0e2\x11.types.NoteStatusR\x06status\x12\x10\n" +
+	"\x03url\x18\b \x01(\tR\x03url\"\x88\x01\n" +
 	"\x06Rating\x12\x17\n" +
 	"\anote_id\x18\x01 \x01(\fR\x06noteId\x12\x14\n" +
 	"\x05rater\x18\x02 \x01(\fR\x05rater\x12(\n" +
@@ -1449,13 +1518,14 @@ const file_tx_proto_rawDesc = "" +
 	"Reputation\x12\x18\n" +
 	"\aaccount\x18\x01 \x01(\fR\aaccount\x12\x19\n" +
 	"\bscore_fp\x18\x02 \x01(\x03R\ascoreFp\x12,\n" +
-	"\x12last_active_height\x18\x03 \x01(\x04R\x10lastActiveHeight\"\xa8\x01\n" +
+	"\x12last_active_height\x18\x03 \x01(\x04R\x10lastActiveHeight\"\xbc\x01\n" +
 	"\x11ClaimCreatedEvent\x12\x19\n" +
 	"\bclaim_id\x18\x01 \x01(\fR\aclaimId\x12\x1c\n" +
 	"\tsubmitter\x18\x02 \x01(\fR\tsubmitter\x12!\n" +
 	"\fcontent_hash\x18\x03 \x01(\fR\vcontentHash\x12\x10\n" +
 	"\x03url\x18\x04 \x01(\tR\x03url\x12%\n" +
-	"\x0ecreated_height\x18\x05 \x01(\x04R\rcreatedHeight\"\xe7\x01\n" +
+	"\x0ecreated_height\x18\x05 \x01(\x04R\rcreatedHeight\x12\x12\n" +
+	"\x04text\x18\x06 \x01(\tR\x04text\"\xf9\x01\n" +
 	"\x10NoteCreatedEvent\x12\x17\n" +
 	"\anote_id\x18\x01 \x01(\fR\x06noteId\x12\x19\n" +
 	"\bclaim_id\x18\x02 \x01(\fR\aclaimId\x12\x16\n" +
@@ -1463,12 +1533,13 @@ const file_tx_proto_rawDesc = "" +
 	"\x04body\x18\x04 \x01(\tR\x04body\x12!\n" +
 	"\fcontent_hash\x18\x05 \x01(\fR\vcontentHash\x12%\n" +
 	"\x0ecreated_height\x18\x06 \x01(\x04R\rcreatedHeight\x12)\n" +
-	"\x06status\x18\a \x01(\x0e2\x11.types.NoteStatusR\x06status\"\x90\x01\n" +
+	"\x06status\x18\a \x01(\x0e2\x11.types.NoteStatusR\x06status\x12\x10\n" +
+	"\x03url\x18\b \x01(\tR\x03url\"\x90\x01\n" +
 	"\x0eNoteRatedEvent\x12\x17\n" +
 	"\anote_id\x18\x01 \x01(\fR\x06noteId\x12\x14\n" +
 	"\x05rater\x18\x02 \x01(\fR\x05rater\x12(\n" +
 	"\x05value\x18\x03 \x01(\x0e2\x12.types.RatingValueR\x05value\x12%\n" +
-	"\x0ecreated_height\x18\x04 \x01(\x04R\rcreatedHeight\"\x8b\x02\n" +
+	"\x0ecreated_height\x18\x04 \x01(\x04R\rcreatedHeight\"\x8f\x03\n" +
 	"\x0fNoteScoredEvent\x12\x17\n" +
 	"\anote_id\x18\x01 \x01(\fR\x06noteId\x12\x19\n" +
 	"\bclaim_id\x18\x02 \x01(\fR\aclaimId\x12)\n" +
@@ -1478,7 +1549,14 @@ const file_tx_proto_rawDesc = "" +
 	"\x06mean_b\x18\x06 \x01(\x03R\x05meanB\x12\x17\n" +
 	"\acount_a\x18\a \x01(\rR\x06countA\x12\x17\n" +
 	"\acount_b\x18\b \x01(\rR\x06countB\x12\x16\n" +
-	"\x06height\x18\t \x01(\x04R\x06height\"\x93\x01\n" +
+	"\x06height\x18\t \x01(\x04R\x06height\x12%\n" +
+	"\x0enote_intercept\x18\n" +
+	" \x01(\x03R\rnoteIntercept\x12\x1f\n" +
+	"\vnote_factor\x18\v \x01(\x03R\n" +
+	"noteFactor\x12\x1b\n" +
+	"\tglobal_mu\x18\f \x01(\x03R\bglobalMu\x12\x1d\n" +
+	"\n" +
+	"num_raters\x18\r \x01(\rR\tnumRaters\"\x93\x01\n" +
 	"\x16ReputationChangedEvent\x12\x18\n" +
 	"\aaccount\x18\x01 \x01(\fR\aaccount\x12\x19\n" +
 	"\bscore_fp\x18\x02 \x01(\x03R\ascoreFp\x12\x14\n" +

@@ -91,13 +91,14 @@ func eventPayloadMap(m proto.Message) map[string]interface{} {
 		return map[string]interface{}{
 			"claimId": hex.EncodeToString(e.ClaimId), "submitter": hex.EncodeToString(e.Submitter),
 			"contentHash": hex.EncodeToString(e.ContentHash), "url": e.Url, "createdHeight": e.CreatedHeight,
+			"text": e.Text,
 		}
 	case *contract.NoteCreatedEvent:
 		return map[string]interface{}{
 			"noteId": hex.EncodeToString(e.NoteId), "claimId": hex.EncodeToString(e.ClaimId),
 			"author": hex.EncodeToString(e.Author), "body": e.Body,
 			"contentHash": hex.EncodeToString(e.ContentHash), "createdHeight": e.CreatedHeight,
-			"status": e.Status.String(),
+			"status": e.Status.String(), "url": e.Url,
 		}
 	case *contract.NoteRatedEvent:
 		return map[string]interface{}{
@@ -107,8 +108,10 @@ func eventPayloadMap(m proto.Message) map[string]interface{} {
 	case *contract.NoteScoredEvent:
 		return map[string]interface{}{
 			"noteId": hex.EncodeToString(e.NoteId), "claimId": hex.EncodeToString(e.ClaimId),
-			"status": e.Status.String(), "bridgeScore": e.BridgeScore,
-			"meanA": e.MeanA, "meanB": e.MeanB, "countA": e.CountA, "countB": e.CountB, "height": e.Height,
+			"status": e.Status.String(), "noteIntercept": e.NoteIntercept, "noteFactor": e.NoteFactor,
+			"globalMu": e.GlobalMu, "numRaters": e.NumRaters,
+			"bridgeScore": e.BridgeScore, "meanA": e.MeanA, "meanB": e.MeanB,
+			"countA": e.CountA, "countB": e.CountB, "height": e.Height,
 		}
 	case *contract.ReputationChangedEvent:
 		return map[string]interface{}{
@@ -199,8 +202,8 @@ func summarize(eventType string, m map[string]interface{}) string {
 	case "note_rated":
 		return fmt.Sprintf("note=%s rater=%s value=%s", short("noteId"), short("rater"), get("value"))
 	case "note_scored":
-		return fmt.Sprintf("note=%s status=%s bridge=%s meanA=%s meanB=%s cA=%s cB=%s",
-			short("noteId"), get("status"), get("bridgeScore"), get("meanA"), get("meanB"), get("countA"), get("countB"))
+		return fmt.Sprintf("note=%s status=%s intercept=%s factor=%s mu=%s raters=%s (latent A=%s B=%s)",
+			short("noteId"), get("status"), get("noteIntercept"), get("noteFactor"), get("globalMu"), get("numRaters"), get("countA"), get("countB"))
 	case "reputation_changed":
 		return fmt.Sprintf("acct=%s scoreFP=%s delta=%s reason=%s", short("account"), get("scoreFP"), get("delta"), get("reason"))
 	default:

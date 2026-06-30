@@ -157,6 +157,7 @@ func (c *Contract) DeliverMessageSubmitClaim(msg *MessageSubmitClaim, fee, creat
 		ContentHash:   msg.ContentHash,
 		Url:           msg.Url,
 		CreatedHeight: createdHeight,
+		Text:          msg.Text,
 	})
 	if pe != nil {
 		return &PluginDeliverResponse{Error: ErrMarshal(pe)}
@@ -181,6 +182,9 @@ func (c *Contract) CheckMessageSubmitNote(msg *MessageSubmitNote) *PluginCheckRe
 	}
 	if msg.Body == "" || len(msg.Body) > maxNoteBodyLen {
 		return &PluginCheckResponse{Error: ErrBodyTooLong()}
+	}
+	if len(msg.Url) > maxURLLen {
+		return &PluginCheckResponse{Error: ErrUrlTooLong()}
 	}
 	return &PluginCheckResponse{AuthorizedSigners: [][]byte{msg.Author}}
 }
@@ -256,6 +260,7 @@ func (c *Contract) DeliverMessageSubmitNote(msg *MessageSubmitNote, fee, created
 		ContentHash:   msg.ContentHash,
 		CreatedHeight: createdHeight,
 		Status:        NoteStatus_NEEDS_MORE_RATINGS,
+		Url:           msg.Url,
 	}
 	noteRecordBz, e := Marshal(note)
 	if e != nil {
@@ -282,6 +287,7 @@ func (c *Contract) DeliverMessageSubmitNote(msg *MessageSubmitNote, fee, created
 		ContentHash:   msg.ContentHash,
 		CreatedHeight: createdHeight,
 		Status:        NoteStatus_NEEDS_MORE_RATINGS,
+		Url:           msg.Url,
 	})
 	if pe != nil {
 		return &PluginDeliverResponse{Error: ErrMarshal(pe)}

@@ -45,6 +45,8 @@ func main() {
 		cmdQuery(args)
 	case "keys":
 		cmdKeys(args)
+	case "serve":
+		cmdServe(args)
 	case "-h", "--help", "help":
 		usage()
 	default:
@@ -64,6 +66,7 @@ commands:
   rate   -key K -note-id HEX -rating helpful|somewhat|not [-nonce N]
   query  (-address HEX20 | -height H) [-event claim|note|rating|score|reputation|all] [-json]
   keys   new -name NICK | get -address HEX20 [-password PW]
+  serve  -port 8080 [-validator-key PATH]   (gateway: indexer + signer + CORS for the frontend)
 
 global flags: -rpc -admin-rpc -net -chain -fee -json -key
 `)
@@ -137,11 +140,12 @@ func cmdNote(args []string) {
 	claimID := fs.String("claim-id", "", "claim id (hex) the note attaches to")
 	body := fs.String("body", "", "note body text")
 	ch := fs.String("content-hash", "", "optional content hash (hex)")
+	url := fs.String("url", "", "optional source url")
 	nonce := fs.Uint64("nonce", 1, "nonce for deterministic id")
 	_ = fs.Parse(args)
 	priv, from := mustKeyCrypto(cm)
 	claimB := decodeHexFlag(*claimID, "-claim-id", true)
-	msg := &contract.MessageSubmitNote{Author: from, ClaimId: claimB, Body: *body, ContentHash: decodeHexFlag(*ch, "-content-hash", false), Nonce: *nonce}
+	msg := &contract.MessageSubmitNote{Author: from, ClaimId: claimB, Body: *body, ContentHash: decodeHexFlag(*ch, "-content-hash", false), Url: *url, Nonce: *nonce}
 	txHash, height := submit(cm, priv, "submit_note", msg)
 	noteID := contract.DeriveNoteID(from, claimB, *nonce, height)
 	emit(cm, map[string]interface{}{"type": "submit_note", "from": hexs(from), "claimId": hexs(claimB), "noteId": hexs(noteID), "txHash": txHash, "height": height})

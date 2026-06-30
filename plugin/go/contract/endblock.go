@@ -137,7 +137,9 @@ func (c *Contract) EndBlock(req *PluginEndRequest) *PluginEndResponse {
 			notesByID[string(note.Id)] = note
 		}
 
-		scores := ScoreNotes(ratings, dirtyIDs)
+		// ScoreNotesMF runs the deterministic fixed-point matrix-factorization scorer (scoring.go).
+		// (Fallback: swap to ScoreNotes(...) for the simplified v1 bridging scorer.)
+		scores := ScoreNotesMF(ratings, dirtyIDs)
 		for _, sc := range scores {
 			deletes = append(deletes, &PluginDeleteOp{Key: KeyForDirtyNote(sc.NoteID)})
 			note, ok := notesByID[string(sc.NoteID)]
@@ -153,10 +155,11 @@ func (c *Contract) EndBlock(req *PluginEndRequest) *PluginEndResponse {
 				}
 				sets = append(sets, &PluginSetOp{Key: KeyForNote(sc.NoteID), Value: nb})
 			}
-			// note_scored event (every rescore)
+			// note_scored event (every rescore) — carries the MF breakdown for the UI/RPC.
 			scoredPayload, pe := anypb.New(&NoteScoredEvent{
 				NoteId: sc.NoteID, ClaimId: note.ClaimId, Status: sc.Status, BridgeScore: sc.Bridge,
 				MeanA: sc.MeanA, MeanB: sc.MeanB, CountA: uint32(sc.CountA), CountB: uint32(sc.CountB), Height: height,
+				NoteIntercept: sc.NoteIntercept, NoteFactor: sc.NoteFactor, GlobalMu: sc.GlobalMu, NumRaters: uint32(sc.NumRaters),
 			})
 			if pe != nil {
 				return &PluginEndResponse{Error: ErrMarshal(pe)}

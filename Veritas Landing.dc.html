@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:oklch(0.15 0.008 80);}
+  ::selection{background:oklch(0.74 0.15 152 / 0.35);color:#fff;}
+  @keyframes vmarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @keyframes vbob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+  a{color:inherit;}
+</style>
+</helmet>
+
+<div style="font-family:'Archivo',sans-serif;background:oklch(0.15 0.008 80);color:oklch(0.95 0.006 95);width:100%;overflow:hidden;">
+
+  <!-- TOP LEDGER TICKER -->
+  <div style="border-bottom:1px solid oklch(0.30 0.008 80);overflow:hidden;white-space:nowrap;background:oklch(0.13 0.008 80);">
+    <div style="display:inline-flex;gap:34px;font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.62 0.01 80);padding:9px 0;animation:vmarquee 38s linear infinite;will-change:transform;">
+      <span>h:184,772 · recompute ✓</span><span style="color:oklch(0.74 0.15 152);">note 0x9f…c2a → HELPFUL</span><span>bridge_score 0.41</span><span>note 0x3b…71d → NOT HELPFUL</span><span>rep +0.8 · honest_rating</span><span>claims_open 1,204</span><span>h:184,773 · recompute ✓</span><span style="color:oklch(0.74 0.15 152);">note 0x1a…88e → HELPFUL</span><span>rep −1.2 · brigading_detected</span><span>chain canopy.nested</span>
+      <span>h:184,772 · recompute ✓</span><span style="color:oklch(0.74 0.15 152);">note 0x9f…c2a → HELPFUL</span><span>bridge_score 0.41</span><span>note 0x3b…71d → NOT HELPFUL</span><span>rep +0.8 · honest_rating</span><span>claims_open 1,204</span><span>h:184,773 · recompute ✓</span><span style="color:oklch(0.74 0.15 152);">note 0x1a…88e → HELPFUL</span><span>rep −1.2 · brigading_detected</span><span>chain canopy.nested</span>
+    </div>
+  </div>
+
+  <!-- HERO · split-flap verdict board -->
+  <section style="width:100%;padding:30px 44px 76px;">
+    <!-- header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:60px;">
+      <div style="display:flex;align-items:center;gap:11px;">
+        <svg width="28" height="28" viewBox="0 0 132 132"><line x1="20" y1="22" x2="66" y2="106" stroke="oklch(0.68 0.13 38)" stroke-width="15" stroke-linecap="square"/><line x1="112" y1="22" x2="66" y2="106" stroke="oklch(0.66 0.11 250)" stroke-width="15" stroke-linecap="square"/><circle cx="66" cy="106" r="15" fill="oklch(0.74 0.15 152)"/></svg>
+        <span style="font-size:19px;font-weight:800;letter-spacing:-0.03em;">Veritas</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:22px;font-family:'JetBrains Mono',monospace;font-size:12px;">
+        <a href="Veritas App.dc.html" style="color:oklch(0.72 0.01 80);text-decoration:none;">product</a>
+        <a href="Veritas Brand Board.dc.html" style="color:oklch(0.72 0.01 80);text-decoration:none;">brand</a>
+        <a href="Veritas App.dc.html" style="text-decoration:none;background:oklch(0.74 0.15 152);color:oklch(0.16 0.03 152);padding:9px 16px;font-weight:600;">launch ↗</a>
+      </div>
+    </div>
+    <!-- copy -->
+    <div style="max-width:1180px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:oklch(0.74 0.15 152);margin-bottom:24px;">Sovereign Canopy chain · the referee runs in the open</div>
+      <h1 style="font-size:clamp(40px,6.6vw,96px);line-height:0.9;letter-spacing:-0.045em;font-weight:900;margin:0;max-width:16ch;text-wrap:balance;">Community Notes, but nobody can secretly rig it.</h1>
+      <p style="font-size:clamp(17px,1.7vw,21px);line-height:1.5;color:oklch(0.80 0.008 95);max-width:54ch;margin:28px 0 0;">The bridging algorithm <strong style="color:oklch(0.95 0.006 95);font-weight:600;">X and Meta run on private servers</strong> runs here on‑chain — recomputed every block, verifiable by anyone.</p>
+    </div>
+    <!-- board -->
+    <div style="margin-top:56px;max-width:1320px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:oklch(0.60 0.01 80);">Public verdict board</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:oklch(0.60 0.01 80);display:flex;align-items:center;gap:9px;"><span style="width:8px;height:8px;border-radius:50%;background:oklch(0.74 0.15 152);display:inline-block;box-shadow:0 0 0 4px oklch(0.74 0.15 152 / 0.2);"></span>recompute · h:{{ blockStr }}</div>
+      </div>
+      <div style="background:oklch(0.10 0.008 80);border:1px solid oklch(0.27 0.008 80);padding:10px 22px;">
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:28px;padding:20px 0;border-bottom:1px solid oklch(0.18 0.008 80);">
+            <div style="flex:1;min-width:0;font-family:'Archivo Narrow';font-weight:600;font-size:clamp(16px,1.55vw,22px);letter-spacing:0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;{{ r.claimStyle }}">{{ r.claim }}</div>
+            <div style="display:flex;gap:4px;flex:none;align-items:center;">
+              <sc-for list="{{ r.tiles }}" as="t" hint-placeholder-count="7">
+                <span style="{{ t.style }}">{{ t.char }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- THESIS BAND (light) -->
+  <section style="background:oklch(0.96 0.006 95);color:oklch(0.21 0.008 80);padding:96px 44px;">
+    <div style="max-width:1240px;margin:0 auto;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:oklch(0.50 0.01 80);margin-bottom:30px;">§ the rule that changes everything</div>
+      <div style="font-size:clamp(30px,4.6vw,62px);line-height:1.04;letter-spacing:-0.035em;font-weight:700;max-width:20ch;text-wrap:balance;">A note goes <span style="color:oklch(0.55 0.16 152);">HELPFUL</span> only when people who normally <span style="position:relative;display:inline-block;"><span style="color:oklch(0.55 0.13 38);">disagree</span></span> with each other <span style="position:relative;display:inline-block;"><span style="color:oklch(0.50 0.11 250);">agree</span></span> it's fair.</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:64px;border-top:1.5px solid oklch(0.21 0.008 80);">
+        <div style="padding:26px 26px 26px 0;border-right:1px solid oklch(0.86 0.01 90);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:54px;font-weight:500;letter-spacing:-0.03em;line-height:1;">01</div>
+          <div style="font-size:16px;line-height:1.45;color:oklch(0.34 0.01 80);margin-top:16px;">A simple majority can be brigaded. A coalition of people who agree on nothing else, can't.</div>
+        </div>
+        <div style="padding:26px;border-right:1px solid oklch(0.86 0.01 90);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:54px;font-weight:500;letter-spacing:-0.03em;line-height:1;">02</div>
+          <div style="font-size:16px;line-height:1.45;color:oklch(0.34 0.01 80);margin-top:16px;">The bridging score measures exactly that — agreement that crosses the divide, not raw vote count.</div>
+        </div>
+        <div style="padding:26px 0 26px 26px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:54px;font-weight:500;letter-spacing:-0.03em;line-height:1;color:oklch(0.55 0.16 152);">03</div>
+          <div style="font-size:16px;line-height:1.45;color:oklch(0.34 0.01 80);margin-top:16px;">Here, that computation is a public transaction. The referee can't be bought because everyone holds the whistle.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIAGONAL SPLIT: off-chain vs on-chain -->
+  <section style="position:relative;height:600px;width:100%;overflow:hidden;background:oklch(0.96 0.006 95);">
+    <!-- on-chain layer (light, behind) -->
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;">
+      <div style="width:46%;padding:0 60px 0 0;color:oklch(0.21 0.008 80);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:oklch(0.45 0.16 152);margin-bottom:18px;">On‑chain · Veritas</div>
+        <h3 style="font-size:34px;line-height:1.06;letter-spacing:-0.03em;font-weight:700;margin:0 0 22px;">Read the math.<br>Re‑run it. Disagree on the record.</h3>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2;color:oklch(0.30 0.01 80);">
+          <div>scoring&nbsp;&nbsp;= public( EndBlock )</div>
+          <div>weights&nbsp;&nbsp;= <span style="color:oklch(0.45 0.16 152);">readable</span></div>
+          <div>audit&nbsp;&nbsp;&nbsp;&nbsp;= <span style="color:oklch(0.45 0.16 152);">anyone, anytime</span></div>
+          <div>history&nbsp;&nbsp;= immutable</div>
+        </div>
+      </div>
+    </div>
+    <!-- off-chain layer (dark, diagonal clip) -->
+    <div style="position:absolute;inset:0;background:oklch(0.16 0.008 80);clip-path:polygon(0 0, 60% 0, 40% 100%, 0 100%);display:flex;align-items:center;">
+      <div style="width:50%;padding:0 0 0 44px;color:oklch(0.92 0.006 95);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:oklch(0.62 0.13 38);margin-bottom:18px;">Off‑chain · today</div>
+        <h3 style="font-size:34px;line-height:1.06;letter-spacing:-0.03em;font-weight:700;margin:0 0 22px;max-width:13ch;">You trust the result. You can't see the math.</h3>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2;color:oklch(0.66 0.01 80);">
+          <div>scoring&nbsp;&nbsp;= private_server</div>
+          <div>weights&nbsp;&nbsp;= <span style="background:oklch(0.40 0.008 80);color:transparent;">redacted</span></div>
+          <div>audit&nbsp;&nbsp;&nbsp;&nbsp;= <span style="background:oklch(0.40 0.008 80);color:transparent;">denied___</span></div>
+          <div>history&nbsp;&nbsp;= editable</div>
+        </div>
+      </div>
+    </div>
+    <!-- seam line -->
+    <div style="position:absolute;top:0;bottom:0;left:0;width:100%;pointer-events:none;"><svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 100 100"><line x1="60" y1="0" x2="40" y2="100" stroke="oklch(0.74 0.15 152)" stroke-width="0.4" vector-effect="non-scaling-stroke"/></svg></div>
+  </section>
+
+  <!-- INTERACTIVE BRIDGING DEMO -->
+  <section style="background:oklch(0.13 0.008 80);color:oklch(0.95 0.006 95);padding:96px 44px;">
+    <div style="max-width:1240px;margin:0 auto;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:16px;margin-bottom:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:oklch(0.74 0.15 152);">§ run the referee yourself</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.55 0.01 80);">interactive · this is the actual logic, simplified</div>
+      </div>
+      <h2 style="font-size:clamp(28px,3.6vw,46px);line-height:1.05;letter-spacing:-0.03em;font-weight:700;margin:0 0 50px;max-width:18ch;">Toggle who agrees. Watch the status decide itself.</h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:0;border:1px solid oklch(0.30 0.008 80);align-items:stretch;">
+        <!-- camp A -->
+        <div style="padding:30px 28px;border-right:1px solid oklch(0.30 0.008 80);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.66 0.13 38);margin-bottom:6px;">Camp A · clay</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.55 0.01 80);margin-bottom:22px;">{{ aCount }}/5 rate helpful</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <sc-for list="{{ aRaters }}" as="r" hint-placeholder-count="5">
+              <button onClick="{{ r.toggle }}" style="{{ r.style }}">rater_a{{ r.n }} · {{ r.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <!-- note + verdict -->
+        <div style="padding:30px 32px;border-right:1px solid oklch(0.30 0.008 80);display:flex;flex-direction:column;justify-content:space-between;gap:24px;">
+          <div style="{{ noteStyle }}">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.60 0.01 80);margin-bottom:12px;">Note attached to claim #4471</div>
+            <div style="font-size:18px;line-height:1.4;font-weight:500;">"The chart drops the 2019 baseline, which makes the rise look ~3× steeper than it is. Full series: bls.gov/data."</div>
+          </div>
+          <div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px;">
+              <div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.55 0.01 80);">bridge_score</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:46px;font-weight:600;letter-spacing:-0.02em;line-height:1;">{{ scoreStr }}</div>
+              </div>
+              <div style="{{ statusStyle }}">{{ status }}</div>
+            </div>
+            <!-- dual bars -->
+            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+              <div style="height:7px;background:oklch(0.24 0.008 80);position:relative;overflow:hidden;"><div style="position:absolute;inset:0 auto 0 0;background:oklch(0.64 0.13 38);transition:width .3s ease;{{ barAStyle }}"></div></div>
+              <div style="height:7px;background:oklch(0.24 0.008 80);position:relative;overflow:hidden;"><div style="position:absolute;inset:0 auto 0 0;background:oklch(0.62 0.11 250);transition:width .3s ease;{{ barBStyle }}"></div></div>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.5;color:oklch(0.70 0.01 80);">{{ explain }}</div>
+          </div>
+        </div>
+        <!-- camp B -->
+        <div style="padding:30px 28px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.62 0.11 250);margin-bottom:6px;">Camp B · slate</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.55 0.01 80);margin-bottom:22px;">{{ bCount }}/5 rate helpful</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <sc-for list="{{ bRaters }}" as="r" hint-placeholder-count="5">
+              <button onClick="{{ r.toggle }}" style="{{ r.style }}">rater_b{{ r.n }} · {{ r.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.50 0.01 80);margin-top:16px;">// real protocol uses a matrix‑factorization bridging model over thousands of raters. same principle: reward agreement across latent viewpoints.</div>
+    </div>
+  </section>
+
+  <!-- VIDEO BAND · live motion loop -->
+  <section style="position:relative;height:560px;width:100%;overflow:hidden;background:oklch(0.115 0.008 80);border-top:1px solid oklch(0.30 0.008 80);border-bottom:1px solid oklch(0.30 0.008 80);">
+    <canvas ref="{{ videoRef }}" style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+    <div style="position:absolute;top:26px;left:44px;font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.60 0.01 80);letter-spacing:0.08em;z-index:2;">[ EndBlock · recompute loop ]</div>
+    <div style="position:absolute;top:26px;right:44px;font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.60 0.01 80);letter-spacing:0.04em;z-index:2;">notes enter pending · exit judged</div>
+    <div style="position:absolute;bottom:28px;left:44px;right:44px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;z-index:2;pointer-events:none;">
+      <div style="font-size:clamp(20px,2.5vw,32px);font-weight:700;letter-spacing:-0.02em;color:oklch(0.94 0.006 95);max-width:20ch;line-height:1.08;">Every block, the chain re‑judges every note — live.</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:oklch(0.58 0.01 80);text-align:right;line-height:1.7;">no operator · no private server<br>just the chain, scoring in the open</div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section style="background:oklch(0.96 0.006 95);color:oklch(0.21 0.008 80);padding:96px 44px;">
+    <div style="max-width:1240px;margin:0 auto;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:oklch(0.50 0.01 80);margin-bottom:44px;">§ the loop</div>
+      <div style="display:flex;flex-direction:column;">
+        <div style="display:grid;grid-template-columns:90px 1fr 0.8fr;gap:30px;align-items:start;padding:30px 0;border-top:1.5px solid oklch(0.21 0.008 80);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:oklch(0.50 0.01 80);">step 01</div>
+          <div><div style="font-size:26px;font-weight:700;letter-spacing:-0.02em;">Submit a claim, attach a note</div><div style="font-size:16px;color:oklch(0.34 0.01 80);margin-top:8px;line-height:1.45;">Anyone posts a claim. Anyone attaches a note with sources. Both become on‑chain objects with a permanent history.</div></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:oklch(0.45 0.01 80);line-height:1.9;">tx submit_claim<br>tx attach_note<br>state → NEEDS RATINGS</div>
+        </div>
+        <div style="display:grid;grid-template-columns:90px 1fr 0.8fr;gap:30px;align-items:start;padding:30px 0;border-top:1px solid oklch(0.86 0.01 90);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:oklch(0.50 0.01 80);">step 02</div>
+          <div><div style="font-size:26px;font-weight:700;letter-spacing:-0.02em;">Raters from every camp weigh in</div><div style="font-size:16px;color:oklch(0.34 0.01 80);margin-top:8px;line-height:1.45;">Each rating is signed and stored. The model learns each rater's latent viewpoint from their whole history — no one declares a "side."</div></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:oklch(0.45 0.01 80);line-height:1.9;">tx rate_note<br>viewpoint inferred<br>signed · stored</div>
+        </div>
+        <div style="display:grid;grid-template-columns:90px 1fr 0.8fr;gap:30px;align-items:start;padding:30px 0;border-top:1px solid oklch(0.86 0.01 90);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:oklch(0.55 0.16 152);">step 03</div>
+          <div><div style="font-size:26px;font-weight:700;letter-spacing:-0.02em;">EndBlock recomputes the bridge</div><div style="font-size:16px;color:oklch(0.34 0.01 80);margin-top:8px;line-height:1.45;">Every block, the plugin re‑scores every note. Cross‑camp agreement clears the threshold → <span style="color:oklch(0.45 0.16 152);font-weight:600;">HELPFUL</span>. The whole computation is the block.</div></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:oklch(0.45 0.01 80);line-height:1.9;">EndBlock()<br>∀ note: re‑score<br>state → <span style="color:oklch(0.45 0.16 152);">HELPFUL</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:90px 1fr 0.8fr;gap:30px;align-items:start;padding:30px 0;border-top:1px solid oklch(0.86 0.01 90);border-bottom:1.5px solid oklch(0.21 0.008 80);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:oklch(0.50 0.01 80);">step 04</div>
+          <div><div style="font-size:26px;font-weight:700;letter-spacing:-0.02em;">Reputation settles, honestly</div><div style="font-size:16px;color:oklch(0.34 0.01 80);margin-top:8px;line-height:1.45;">Helping the bridge build reputation. Gaming it decays reputation. The score is non‑transferable — you can't buy a reputation, only earn it.</div></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:oklch(0.45 0.01 80);line-height:1.9;">rep += honest<br>rep −= bad_faith<br>soulbound</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA RECEIPT -->
+  <section style="background:oklch(0.15 0.008 80);color:oklch(0.95 0.006 95);padding:110px 44px;">
+    <div style="max-width:760px;margin:0 auto;text-align:center;">
+      <svg width="46" height="46" viewBox="0 0 132 132" style="margin-bottom:30px;"><line x1="20" y1="22" x2="66" y2="106" stroke="oklch(0.68 0.13 38)" stroke-width="15" stroke-linecap="square"/><line x1="112" y1="22" x2="66" y2="106" stroke="oklch(0.66 0.11 250)" stroke-width="15" stroke-linecap="square"/><circle cx="66" cy="106" r="15" fill="oklch(0.74 0.15 152)"/></svg>
+      <h2 style="font-size:clamp(34px,5vw,64px);line-height:1.0;letter-spacing:-0.04em;font-weight:800;margin:0 0 24px;text-wrap:balance;">Don't trust the referee.<br>Read it.</h2>
+      <p style="font-size:18px;line-height:1.5;color:oklch(0.78 0.008 95);max-width:46ch;margin:0 auto 38px;">Veritas is a sovereign Canopy Nested Chain. The fact‑checking is the consensus. Open the protocol and watch a block judge itself.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="Veritas App.dc.html" style="text-decoration:none;background:oklch(0.74 0.15 152);color:oklch(0.16 0.03 152);padding:15px 28px;font-weight:700;font-size:16px;">Launch the protocol ↗</a>
+        <a href="Veritas Deck.dc.html" style="text-decoration:none;border:1px solid oklch(0.40 0.008 80);color:oklch(0.92 0.006 95);padding:15px 28px;font-weight:600;font-size:16px;">Read the pitch</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="background:oklch(0.13 0.008 80);border-top:1px solid oklch(0.30 0.008 80);padding:30px 44px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:oklch(0.58 0.01 80);">
+    <div>veritas · sovereign chain · bridging on‑chain</div>
+    <div style="display:flex;gap:22px;"><a href="Veritas Brand Board.dc.html" style="color:oklch(0.58 0.01 80);text-decoration:none;">brand</a><a href="Veritas App.dc.html" style="color:oklch(0.58 0.01 80);text-decoration:none;">product</a><a href="Veritas Deck.dc.html" style="color:oklch(0.58 0.01 80);text-decoration:none;">deck</a></div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.videoRef = React.createRef();
+    this.CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    this.bRows=[
+      {claim:'"Chart drops the 2019 baseline — the rise is 14%, not 200%."'},
+      {claim:'"The policy took effect after the period shown."'},
+      {claim:'"Foundation signed a statement denying the endorsement."'}
+    ];
+    this.statuses=['HELPFUL','NOT HELPFUL','PENDING'];
+    this._timers=[];
+    this.state = { a:[true,true,false,true,false], b:[false,true,true,false,false], block:184772, tiles:this.bRows.map((_,i)=>this.makeTiles(this.statuses[i], true)) };
+  }
+  componentDidMount(){ this.initVideo(); this.startBoard(); }
+  componentWillUnmount(){
+    if(this._vraf) cancelAnimationFrame(this._vraf);
+    if(this._vresize) window.removeEventListener('resize', this._vresize);
+    if(this._tick) clearInterval(this._tick);
+    if(this._cycle) clearInterval(this._cycle);
+    this._timers.forEach(clearTimeout);
+  }
+  rc(){ return this.CHARS[Math.floor(Math.random()*26)]; }
+  makeTiles(status, settled){
+    return [...status].map(ch=>({ target:ch, char: ch===' '?' ':(settled?ch:this.rc()), locked: ch===' '?true:!!settled }));
+  }
+  startBoard(){
+    this._tick=setInterval(()=>{
+      this.setState(s=>{ let ch=false; const tiles=s.tiles.map(row=>row.map(t=>{ if(t.locked) return t; ch=true; return {...t,char:this.rc()}; })); return ch?{tiles}:null; });
+    },55);
+    this.bRows.forEach((_,i)=> this._timers.push(setTimeout(()=>this.spin(i,this.statuses[i]), 300+i*260)));
+    this._cycle=setInterval(()=>this.nextBlock(), 6200);
+  }
+  nextBlock(){
+    this.statuses[2]=this.statuses[2]==='PENDING'?'HELPFUL':'PENDING';
+    this.setState(s=>({block:s.block+1}));
+    this.bRows.forEach((_,i)=> this._timers.push(setTimeout(()=>this.spin(i,this.statuses[i]), i*240)));
+  }
+  spin(i,status){
+    const targets=status;
+    this.setState(s=>{ const tiles=s.tiles.slice(); tiles[i]=[...targets].map(ch=> ch===' '?{target:' ',char:' ',locked:true}:{target:ch,char:this.rc(),locked:false}); return {tiles}; });
+    let order=0;
+    [...targets].forEach((ch,j)=>{ if(ch===' ') return; const delay=420+order*85; order++; this._timers.push(setTimeout(()=>{ this.setState(s=>{ const tiles=s.tiles.slice(); const row=tiles[i].slice(); row[j]={...row[j],char:row[j].target,locked:true}; tiles[i]=row; return {tiles}; }); },delay)); });
+  }
+  tileStyle(t,status){
+    const base='width:30px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;font-family:\'JetBrains Mono\',monospace;font-weight:600;font-size:22px;border-radius:2px;';
+    if(t.target===' ') return 'width:14px;flex:none;';
+    if(!t.locked) return base+'color:oklch(0.78 0.006 95);background:linear-gradient(to bottom, oklch(0.31 0.008 80) 0 47%, oklch(0.10 0.008 80) 47% 53%, oklch(0.27 0.008 80) 53% 100%);';
+    if(status==='HELPFUL') return base+'color:oklch(0.16 0.03 152);background:linear-gradient(to bottom, oklch(0.79 0.15 152) 0 47%, oklch(0.55 0.13 152) 47% 53%, oklch(0.72 0.15 152) 53% 100%);';
+    return base+'color:oklch(0.84 0.006 95);background:linear-gradient(to bottom, oklch(0.33 0.008 80) 0 47%, oklch(0.11 0.008 80) 47% 53%, oklch(0.28 0.008 80) 53% 100%);';
+  }
+  toggle(camp,i){
+    this.setState(s=>{ const arr=s[camp].slice(); arr[i]=!arr[i]; return { [camp]:arr }; });
+  }
+  metrics(){
+    const a=this.state.a.filter(Boolean).length, b=this.state.b.filter(Boolean).length;
+    const af=a/5, bf=b/5, total=a+b;
+    const score = (af+bf>0) ? (2*af*bf/(af+bf)) : 0;
+    let status, explain;
+    if(total<2){ status='NEEDS RATINGS'; explain='// awaiting cross-camp ratings'; }
+    else if(score>=0.4 && af>0 && bf>0){ status='HELPFUL'; explain='// both camps agree → the note bridges the divide'; }
+    else if(af===0 || bf===0){ status='NOT HELPFUL'; explain='// only one camp agrees → a majority, not a bridge'; }
+    else { status='NOT HELPFUL'; explain='// agreement too thin or lopsided to bridge'; }
+    return { a,b,af,bf,score,status,explain };
+  }
+  raterStyle(on, camp){
+    const col = camp==='a' ? '0.64 0.13 38' : '0.62 0.11 250';
+    const base='font-family:\'JetBrains Mono\',monospace;font-size:12px;text-align:left;padding:10px 12px;cursor:pointer;border-radius:0;transition:all .18s ease;width:100%;';
+    if(on) return base+`background:oklch(${col});color:oklch(0.97 0.02 ${camp==='a'?'38':'250'});border:1px solid oklch(${col});font-weight:600;`;
+    return base+`background:transparent;color:oklch(0.55 0.01 80);border:1px solid oklch(0.32 0.008 80);`;
+  }
+  renderVals(){
+    const m=this.metrics();
+    const mk=(camp)=> this.state[camp].map((on,i)=>({
+      n:i+1, on, label: on?'helpful':'—',
+      style:this.raterStyle(on,camp),
+      toggle:()=>this.toggle(camp,i)
+    }));
+    const helpful = m.status==='HELPFUL';
+    const noteStyle = helpful
+      ? 'padding:22px;border:1px solid oklch(0.74 0.15 152);background:oklch(0.74 0.15 152 / 0.10);transition:all .3s ease;box-shadow:0 0 0 4px oklch(0.74 0.15 152 / 0.08);'
+      : 'padding:22px;border:1px solid oklch(0.30 0.008 80);background:oklch(0.16 0.008 80);transition:all .3s ease;';
+    let statusStyle='font-family:\'JetBrains Mono\',monospace;font-size:13px;font-weight:600;letter-spacing:0.04em;padding:7px 13px;white-space:nowrap;';
+    if(m.status==='HELPFUL') statusStyle+='background:oklch(0.74 0.15 152);color:oklch(0.16 0.03 152);';
+    else if(m.status==='NEEDS RATINGS') statusStyle+='background:oklch(0.30 0.008 80);color:oklch(0.72 0.01 80);';
+    else statusStyle+='background:oklch(0.95 0.006 95);color:oklch(0.18 0.008 80);';
+    const bRows=this.bRows.map((r,i)=>{
+      const status=this.statuses[i];
+      const settled=this.state.tiles[i].every(t=>t.locked);
+      const isHelpful=settled && status==='HELPFUL';
+      return { claim:r.claim, claimStyle: isHelpful?'color:oklch(0.86 0.006 95);':'color:oklch(0.56 0.006 95);', tiles:this.state.tiles[i].map(t=>({char:t.char, style:this.tileStyle(t,status)})) };
+    });
+    return {
+      videoRef:this.videoRef, blockStr:this.state.block.toLocaleString(), rows:bRows,
+      aRaters:mk('a'), bRaters:mk('b'),
+      aCount:m.a, bCount:m.b,
+      scoreStr:m.score.toFixed(2),
+      status:m.status, statusStyle, noteStyle, explain:m.explain,
+      barAStyle:`width:${m.af*100}%`, barBStyle:`width:${m.bf*100}%`
+    };
+  }
+  initCanvas(){
+    const cv=this.canvasRef.current; if(!cv) return;
+    const ctx=cv.getContext('2d'); this._ctx=ctx;
+    const resize=()=>{
+      const r=cv.getBoundingClientRect(); this._w=r.width; this._h=r.height;
+      const dpr=Math.min(2, window.devicePixelRatio||1);
+      cv.width=Math.max(1,Math.round(r.width*dpr)); cv.height=Math.max(1,Math.round(r.height*dpr));
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    };
+    this._resize=resize; resize(); window.addEventListener('resize',resize);
+    const rnd=(a,b)=>a+Math.random()*(b-a);
+    const A=[],B=[];
+    for(let i=0;i<32;i++) A.push({x:rnd(0.03,0.34),y:rnd(0.06,0.94),p:Math.random()*6.28,s:rnd(0.25,0.7)});
+    for(let i=0;i<32;i++) B.push({x:rnd(0.66,0.97),y:rnd(0.06,0.94),p:Math.random()*6.28,s:rnd(0.25,0.7)});
+    this._A=A; this._B=B;
+    const pick=(arr,n)=>{ const idx=[...arr.keys()]; for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];} return idx.slice(0,n); };
+    this._notes=[
+      {x:0.5,y:0.34,kind:'green',la:pick(A,7),lb:pick(B,7)},
+      {x:0.40,y:0.64,kind:'clay',la:pick(A,8),lb:[]},
+      {x:0.60,y:0.74,kind:'slate',la:[],lb:pick(B,8)}
+    ];
+    this._t=0; this.loop();
+  }
+  loop(){
+    this._raf=requestAnimationFrame(()=>this.loop());
+    const ctx=this._ctx, w=this._w, h=this._h; if(!ctx||!w) return;
+    ctx.clearRect(0,0,w,h); this._t+=0.01;
+    const CLAY='196,104,63', SLATE='90,127,192', GREEN='52,184,119';
+    const pos=(d)=>({ x:(d.x+Math.sin(this._t*d.s+d.p)*0.012)*w, y:(d.y+Math.cos(this._t*d.s*0.8+d.p)*0.018)*h });
+    const drawLinks=(note,arr,list,rgb)=>{
+      const nx=note.x*w, ny=note.y*h;
+      list.forEach((idx,k)=>{ const p=pos(arr[idx]); const a=0.09+0.06*Math.sin(this._t*1.4+k+note.x*4);
+        ctx.strokeStyle=`rgba(${rgb},${a})`; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(nx,ny); ctx.stroke(); });
+    };
+    this._notes.forEach(note=>{
+      const rgbA = note.kind==='green'?GREEN:CLAY, rgbB = note.kind==='green'?GREEN:SLATE;
+      drawLinks(note,this._A,note.la,rgbA); drawLinks(note,this._B,note.lb,rgbB);
+    });
+    const dots=(arr,rgb)=>arr.forEach(d=>{ const p=pos(d); ctx.fillStyle=`rgba(${rgb},0.5)`; ctx.beginPath(); ctx.arc(p.x,p.y,2.1,0,6.2832); ctx.fill(); });
+    dots(this._A,CLAY); dots(this._B,SLATE);
+    this._notes.forEach(note=>{
+      const nx=note.x*w, ny=note.y*h, green=note.kind==='green';
+      const rgb = green?GREEN:(note.kind==='clay'?CLAY:SLATE);
+      const pr = green ? 9+Math.sin(this._t*2.2)*1.6 : 6;
+      if(green){ ctx.shadowColor=`rgba(${GREEN},0.85)`; ctx.shadowBlur=26; }
+      ctx.fillStyle=`rgb(${rgb})`; ctx.beginPath(); ctx.arc(nx,ny,pr,0,6.2832); ctx.fill(); ctx.shadowBlur=0;
+      ctx.strokeStyle=`rgba(${rgb},0.32)`; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.arc(nx,ny,pr+8,0,6.2832); ctx.stroke();
+    });
+  }
+  initVideo(){
+    const cv=this.videoRef.current; if(!cv) return;
+    const ctx=cv.getContext('2d'); this._vctx=ctx;
+    const resize=()=>{
+      const r=cv.getBoundingClientRect(); this._vw=r.width; this._vh=r.height;
+      const dpr=Math.min(2, window.devicePixelRatio||1);
+      cv.width=Math.max(1,Math.round(r.width*dpr)); cv.height=Math.max(1,Math.round(r.height*dpr));
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    };
+    this._vresize=resize; resize(); window.addEventListener('resize',resize);
+    this._vNotes=[]; this._vlast=0; this._vspawn=0.3; this._block=184772; this._pulse=0; this._gateFlash=0;
+    this.vloop(performance.now());
+  }
+  vloop(ts){
+    this._vraf=requestAnimationFrame(t=>this.vloop(t));
+    const ctx=this._vctx, w=this._vw, h=this._vh; if(!ctx||!w) return;
+    let dt=(ts-this._vlast)/1000; if(!this._vlast||dt>0.1||dt<0) dt=0.016; this._vlast=ts;
+    ctx.clearRect(0,0,w,h);
+    const CLAY='196,104,63', SLATE='90,127,192', GREEN='52,184,119', GRAY='124,121,112';
+    const base=h*0.50, gateX=w*0.5, DUR=7.8, pw=156, ph=44;
+    const lerp=(a,b,t)=>a+(b-a)*t, ease=t=>t<0?0:t>1?1:t*t*(3-2*t);
+    const mix=(a,b,t)=>{ const A=a.split(','),B=b.split(','); return A.map((v,i)=>Math.round(+v+(+B[i]-+v)*t)).join(','); };
+    // baseline track
+    ctx.strokeStyle='rgba(150,148,140,0.12)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,base+22); ctx.lineTo(w,base+22); ctx.stroke();
+    // spawn
+    this._vspawn-=dt;
+    if(this._vspawn<=0){
+      this._vspawn=1.2; const help=Math.random()<0.68;
+      this._vNotes.push({ t:0, help,
+        af: help? 0.66+Math.random()*0.22 : (Math.random()<0.5?0.86:0.18),
+        bf: help? 0.62+Math.random()*0.22 : (Math.random()<0.5?0.12:0.82) });
+    }
+    // gate pulse / block tick
+    this._pulse+=dt; if(this._pulse>=3.6){ this._pulse=0; this._block++; this._gateFlash=1; }
+    this._gateFlash=Math.max(0,this._gateFlash-dt*1.5);
+    // gate line + glow (behind pills)
+    const gAl=Math.min(1, 0.5+0.32*Math.sin(this._pulse*1.7)+this._gateFlash*0.5);
+    ctx.save();
+    ctx.shadowColor=`rgba(${GREEN},0.9)`; ctx.shadowBlur=13+this._gateFlash*28;
+    ctx.strokeStyle=`rgba(${GREEN},${gAl})`; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(gateX,h*0.15); ctx.lineTo(gateX,h*0.85); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle=`rgba(${GREEN},0.9)`;
+    ctx.beginPath(); ctx.arc(gateX,h*0.15,3,0,6.2832); ctx.fill();
+    ctx.beginPath(); ctx.arc(gateX,h*0.85,3,0,6.2832); ctx.fill();
+    // notes
+    this._vNotes.forEach(n=>{ n.t+=dt/DUR; });
+    this._vNotes=this._vNotes.filter(n=>n.t<1.08);
+    this._vNotes.forEach(n=>{
+      const x=-0.1*w + n.t*1.2*w;
+      const judged = x>gateX;
+      const after = Math.max(0,Math.min(1,(x-gateX)/(w*0.14)));
+      const y = lerp(base, n.help? base-h*0.24 : base+h*0.20, ease(after));
+      const vcol = n.help? GREEN : '96,93,86';
+      const rgb = judged ? mix(GRAY, vcol, ease(after)) : GRAY;
+      const al = Math.max(0, Math.min(Math.min(1,n.t/0.05), Math.min(1,(1.08-n.t)/0.14)));
+      ctx.globalAlpha=al;
+      ctx.fillStyle=`rgba(${rgb},0.13)`; ctx.strokeStyle=`rgba(${rgb},0.85)`; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.roundRect(x-pw/2, y-ph/2, pw, ph, 7); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=`rgb(${rgb})`; ctx.font='600 11px "JetBrains Mono", monospace';
+      ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText(judged ? (n.help?'HELPFUL':'NOT HELPFUL') : 'pending', x-pw/2+13, y-8);
+      const barX=x-pw/2+13, barW=pw-26;
+      const grow=Math.min(1, n.t*1.7);
+      const aw = judged? n.af : grow*0.45, bw = judged? n.bf : grow*0.4;
+      ctx.fillStyle=`rgba(${CLAY},${al*0.92})`; ctx.fillRect(barX, y+5, barW*aw, 2.6);
+      ctx.fillStyle=`rgba(${SLATE},${al*0.92})`; ctx.fillRect(barX, y+11, barW*bw, 2.6);
+      ctx.globalAlpha=1;
+    });
+    // gate labels (on top, readable)
+    ctx.fillStyle=`rgba(${GREEN},0.95)`; ctx.font='600 13px "JetBrains Mono", monospace';
+    ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+    ctx.fillText('EndBlock()', gateX, h*0.15-14);
+    ctx.fillStyle='rgba(150,148,140,0.85)'; ctx.font='500 12px "JetBrains Mono", monospace';
+    ctx.fillText('h:'+this._block.toLocaleString(), gateX, h*0.85+26);
+    ctx.textAlign='left';
+  }
+}
+</script>
+</body>
+</html>

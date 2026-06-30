@@ -2,6 +2,7 @@ package contract
 
 import (
 	"bytes"
+	"sort"
 	"testing"
 
 	"google.golang.org/protobuf/proto"
@@ -29,11 +30,29 @@ type fakeBackend struct {
 func newFakeBackend() *fakeBackend { return &fakeBackend{kv: map[string][]byte{}} }
 
 func (f *fakeBackend) StateRead(_ *Contract, req *PluginStateReadRequest) (*PluginStateReadResponse, *PluginError) {
-	results := make([]*PluginReadResult, 0, len(req.Keys))
+	results := make([]*PluginReadResult, 0, len(req.Keys)+len(req.Ranges))
 	for _, k := range req.Keys {
 		res := &PluginReadResult{QueryId: k.QueryId}
 		if v, ok := f.kv[string(k.Key)]; ok {
 			res.Entries = []*PluginStateEntry{{Key: k.Key, Value: v}}
+		}
+		results = append(results, res)
+	}
+	// prefix/range reads — collect matching keys in sorted order (mirrors the FSM's ordered scan).
+	for _, rg := range req.Ranges {
+		var matched []string
+		for key := range f.kv {
+			if bytes.HasPrefix([]byte(key), rg.Prefix) {
+				matched = append(matched, key)
+			}
+		}
+		sort.Strings(matched)
+		res := &PluginReadResult{QueryId: rg.QueryId}
+		for _, key := range matched {
+			if rg.Limit > 0 && uint64(len(res.Entries)) >= rg.Limit {
+				break
+			}
+			res.Entries = append(res.Entries, &PluginStateEntry{Key: []byte(key), Value: f.kv[key]})
 		}
 		results = append(results, res)
 	}

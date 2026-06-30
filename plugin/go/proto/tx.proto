@@ -85,6 +85,8 @@ message MessageSubmitNote {
   bytes content_hash = 4; // @gotags: json:"contentHash"
   // nonce: caller-chosen value for deterministic id derivation
   uint64 nonce = 5;
+  // url: optional source URL backing the note (additive; mirrors MessageSubmitClaim.url)
+  string url = 6;
 }
 
 // MessageRateNote rates a note (one rating per note+rater; later ratings overwrite).
@@ -120,6 +122,7 @@ message Note {
   bytes content_hash = 5; // @gotags: json:"contentHash"
   uint64 created_height = 6; // @gotags: json:"createdHeight"
   NoteStatus status = 7;
+  string url = 8;
 }
 
 // Rating is a persisted rating record (key prefix 26).
@@ -146,6 +149,7 @@ message ClaimCreatedEvent {
   bytes content_hash = 3; // @gotags: json:"contentHash"
   string url = 4;
   uint64 created_height = 5; // @gotags: json:"createdHeight"
+  string text = 6;
 }
 
 // NoteCreatedEvent is emitted by DeliverTx when a note is attached to a claim.
@@ -157,6 +161,7 @@ message NoteCreatedEvent {
   bytes content_hash = 5; // @gotags: json:"contentHash"
   uint64 created_height = 6; // @gotags: json:"createdHeight"
   NoteStatus status = 7; // initial status (NEEDS_MORE_RATINGS)
+  string url = 8;
 }
 
 // NoteRatedEvent is emitted by DeliverTx when a rating lands (new or overwrite).
@@ -180,6 +185,12 @@ message NoteScoredEvent {
   uint32 count_a = 7; // @gotags: json:"countA"
   uint32 count_b = 8; // @gotags: json:"countB"
   uint64 height = 9;
+  // matrix-factorization breakdown (the production scorer): a note is HELPFUL when note_intercept
+  // clears threshold; note_factor is its position on the latent polarity axis.
+  int64 note_intercept = 10; // @gotags: json:"noteIntercept"
+  int64 note_factor = 11; // @gotags: json:"noteFactor"
+  int64 global_mu = 12; // @gotags: json:"globalMu"
+  uint32 num_raters = 13; // @gotags: json:"numRaters"
 }
 
 // ReputationChangedEvent is emitted by EndBlock when an account's non-transferable reputation moves,

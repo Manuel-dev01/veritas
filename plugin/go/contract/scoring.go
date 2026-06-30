@@ -1,6 +1,8 @@
 package contract
 
 import (
+	"crypto/sha256"
+	"encoding/binary"
 	"sort"
 )
 
@@ -54,11 +56,16 @@ type RatingInput struct {
 type NoteScore struct {
 	NoteID []byte
 	Status NoteStatus
-	Bridge int64 // min(MeanA, MeanB) when both cohorts qualify, else 0
-	MeanA  int64
-	MeanB  int64
+	Bridge int64 // v1: min(MeanA,MeanB); MF: the note intercept (the bridging signal)
+	MeanA  int64 // mean helpfulness within latent cohort A (factor >= 0)
+	MeanB  int64 // mean helpfulness within latent cohort B (factor < 0)
 	CountA int
 	CountB int
+	// MF-only breakdown (zero under v1):
+	NoteIntercept int64 // b_n — high = helpful across the polarity axis (the bridge)
+	NoteFactor    int64 // f_n — the note's position on the latent polarity axis
+	GlobalMu      int64 // μ — global intercept (the average rating level)
+	NumRaters     int   // ratings contributing to this note
 }
 
 // ratingToFP maps a rating enum to its fixed-point helpfulness; ok=false for UNSPECIFIED (skipped).
@@ -181,4 +188,232 @@ func sortedKeys[V any](m map[string]V) []string {
 	}
 	sort.Strings(keys)
 	return keys
+}
+
+// =============================================================================================
+// Matrix-factorization scorer (the real Community Notes model, made deterministic).
+//
+// We model each rating as  r_un ≈ μ + b_u + b_n + f_u·f_n  (1-D latent factor, exactly production's
+// d=1) and train it with FULL-BATCH gradient descent on the MSE loss with L2 regularization. A note
+// is HELPFUL when its note-intercept b_n clears a threshold: a high b_n means the note is rated
+// helpful in a way the latent polarity factor f cannot explain — i.e. agreement that BRIDGES the
+// divide. Helpfulness that comes from one faction is absorbed into f_u·f_n and leaves b_n low.
+//
+// DETERMINISM (the #1 rule — this runs on every validator and must be byte-identical):
+//   - Integer-only fixed-point at scale mfScale; one rounding rule (truncate toward zero) everywhere.
+//   - Full-batch GD: gradients summed over ratings in SORTED (noteId,rater) order; params updated over
+//     SORTED ids. No SGD, no shuffling ⇒ output depends only on the input set, never its order.
+//   - Deterministic init from sha256(id) replaces the random init real MF uses — it breaks the
+//     symmetry GD needs to discover the polarity axis without ever touching rand/time.
+//   - No float, no maps iterated unsorted, no wall-clock.
+// =============================================================================================
+
+// fixed-point scale for MF parameters (separate, larger than the rating scale, for gradient precision).
+const mfScale int64 = 1_000_000
+
+// MF training hyper-parameters (named so they're tunable + explainable). Learning rate and L2 are
+// rationals so all arithmetic stays integer.
+const (
+	mfEpochs          = 600
+	mfLRNum     int64 = 1 // learning rate = mfLRNum/mfLRDen (0.5)
+	mfLRDen     int64 = 2
+	mfRegNum    int64 = 2 // L2 lambda = mfRegNum/mfRegDen (0.02) applied to every parameter
+	mfRegDen    int64 = 100
+	mfInitMag   int64 = 50_000      // factor init in ±0.05·mfScale, seeded per id
+	mfParamCap  int64 = 5_000_000   // clamp params to ±5·mfScale (overflow / divergence guard)
+	mfMinRaters       = 3           // a note needs this many ratings before MF assigns a terminal status
+)
+
+// MF status thresholds on the note intercept b_n (calibrated in scoring_mf_test.go). The HELPFUL
+// threshold is 0.40·mfScale — the same 0.40 note-intercept cutoff Community Notes uses in production.
+const (
+	mfHelpfulIntercept    int64 = 400_000  // b_n >= 0.40 -> HELPFUL
+	mfNotHelpfulIntercept int64 = -200_000 // b_n <= -0.20 -> NOT_HELPFUL
+)
+
+// ratingToFPMF maps a rating to MF scale {0, mfScale/2, mfScale}; ok=false for UNSPECIFIED.
+func ratingToFPMF(v RatingValue) (int64, bool) {
+	switch v {
+	case RatingValue_RATING_HELPFUL:
+		return mfScale, true
+	case RatingValue_RATING_SOMEWHAT:
+		return mfScale / 2, true
+	case RatingValue_RATING_NOT_HELPFUL:
+		return 0, true
+	default:
+		return 0, false
+	}
+}
+
+// mulFP multiplies two mfScale-scaled values, returning an mfScale-scaled result (truncate toward 0).
+func mulFP(a, b int64) int64 { return a * b / mfScale }
+
+// clampFP bounds a parameter to ±mfParamCap.
+func clampFP(x int64) int64 {
+	if x > mfParamCap {
+		return mfParamCap
+	}
+	if x < -mfParamCap {
+		return -mfParamCap
+	}
+	return x
+}
+
+// initFromID derives a deterministic signed factor seed in [-mfInitMag, +mfInitMag] from sha256(id).
+// This replaces random init (which would be non-deterministic) while still breaking symmetry so the
+// latent factors can separate along the polarity axis.
+func initFromID(id []byte) int64 {
+	h := sha256.Sum256(id)
+	u := binary.BigEndian.Uint32(h[:4])
+	span := 2*mfInitMag + 1
+	return int64(u)%span - mfInitMag
+}
+
+// MFModel holds the trained parameters. Maps are keyed by string(id bytes).
+type MFModel struct {
+	Mu int64
+	BU map[string]int64 // rater intercepts
+	BN map[string]int64 // note intercepts (the bridging signal)
+	FU map[string]int64 // rater latent factors
+	FN map[string]int64 // note latent factors
+}
+
+// mfObs is one rating observation in MF fixed-point.
+type mfObs struct {
+	nid, rid string
+	r        int64
+}
+
+// TrainMF fits μ, b_u, b_n, f_u, f_n by deterministic full-batch gradient descent. Pure.
+func TrainMF(all []RatingInput) MFModel {
+	m := MFModel{BU: map[string]int64{}, BN: map[string]int64{}, FU: map[string]int64{}, FN: map[string]int64{}}
+	// collect valid observations + the user/note id sets
+	obs := make([]mfObs, 0, len(all))
+	users, notes := map[string]struct{}{}, map[string]struct{}{}
+	for _, x := range all {
+		fp, ok := ratingToFPMF(x.Value)
+		if !ok {
+			continue
+		}
+		nid, rid := string(x.NoteID), string(x.Rater)
+		obs = append(obs, mfObs{nid: nid, rid: rid, r: fp})
+		users[rid] = struct{}{}
+		notes[nid] = struct{}{}
+	}
+	R := int64(len(obs))
+	if R == 0 {
+		return m
+	}
+	// deterministic order for gradient sums (output must not depend on input order)
+	sort.Slice(obs, func(i, j int) bool {
+		if obs[i].nid != obs[j].nid {
+			return obs[i].nid < obs[j].nid
+		}
+		return obs[i].rid < obs[j].rid
+	})
+	userIDs, noteIDs := sortedKeys(users), sortedKeys(notes)
+	for _, u := range userIDs {
+		m.FU[u] = initFromID([]byte(u)) // BU defaults to 0
+	}
+	for _, n := range noteIDs {
+		m.FN[n] = initFromID([]byte(n)) // BN defaults to 0
+	}
+
+	// step(g) = g * lr ; reg(theta) = theta * lr * lambda  (both integer; MSE loss => divide data grad by R)
+	step := func(g int64) int64 { return g * mfLRNum / mfLRDen }
+	reg := func(theta int64) int64 { return theta * mfLRNum * mfRegNum / (mfLRDen * mfRegDen) }
+
+	for epoch := 0; epoch < mfEpochs; epoch++ {
+		var gMu int64
+		gBU := map[string]int64{}
+		gBN := map[string]int64{}
+		gFU := map[string]int64{}
+		gFN := map[string]int64{}
+		for _, o := range obs { // sorted order
+			pred := m.Mu + m.BU[o.rid] + m.BN[o.nid] + mulFP(m.FU[o.rid], m.FN[o.nid])
+			err := o.r - pred
+			gMu += err
+			gBU[o.rid] += err
+			gBN[o.nid] += err
+			gFU[o.rid] += mulFP(err, m.FN[o.nid])
+			gFN[o.nid] += mulFP(err, m.FU[o.rid])
+		}
+		// apply averaged data gradient (÷R) minus L2, over sorted ids
+		m.Mu = clampFP(m.Mu + step(gMu/R) - reg(m.Mu))
+		for _, u := range userIDs {
+			m.BU[u] = clampFP(m.BU[u] + step(gBU[u]/R) - reg(m.BU[u]))
+			m.FU[u] = clampFP(m.FU[u] + step(gFU[u]/R) - reg(m.FU[u]))
+		}
+		for _, n := range noteIDs {
+			m.BN[n] = clampFP(m.BN[n] + step(gBN[n]/R) - reg(m.BN[n]))
+			m.FN[n] = clampFP(m.FN[n] + step(gFN[n]/R) - reg(m.FN[n]))
+		}
+	}
+	return m
+}
+
+// ScoreNotesMF trains the MF model once over all ratings, then classifies each target note from its
+// learned intercept b_n. Pure and deterministic; returns one NoteScore per target, ordered by note id.
+func ScoreNotesMF(all []RatingInput, targets [][]byte) []NoteScore {
+	model := TrainMF(all)
+
+	// gather each note's ratings (for the min-raters gate and the latent-cohort breakdown).
+	type rv struct {
+		rid string
+		val int64
+	}
+	byNote := map[string][]rv{}
+	for _, x := range all {
+		fp, ok := ratingToFPMF(x.Value)
+		if !ok {
+			continue
+		}
+		nid := string(x.NoteID)
+		byNote[nid] = append(byNote[nid], rv{rid: string(x.Rater), val: fp})
+	}
+
+	sortedTargets := append([][]byte(nil), targets...)
+	sort.Slice(sortedTargets, func(i, j int) bool { return string(sortedTargets[i]) < string(sortedTargets[j]) })
+
+	out := make([]NoteScore, 0, len(sortedTargets))
+	for _, target := range sortedTargets {
+		nid := string(target)
+		rs := append([]rv(nil), byNote[nid]...)
+		sort.Slice(rs, func(i, j int) bool { return rs[i].rid < rs[j].rid })
+
+		sc := NoteScore{
+			NoteID:        target,
+			Status:        NoteStatus_NEEDS_MORE_RATINGS,
+			GlobalMu:      model.Mu,
+			NoteIntercept: model.BN[nid],
+			NoteFactor:    model.FN[nid],
+			NumRaters:     len(rs),
+		}
+		sc.Bridge = sc.NoteIntercept // continuity with the v1 "bridge score" field
+
+		// latent cohorts: split this note's raters by the SIGN of their learned factor f_u.
+		var sumA, sumB int64
+		for _, e := range rs {
+			if model.FU[e.rid] >= 0 {
+				sumA += e.val
+				sc.CountA++
+			} else {
+				sumB += e.val
+				sc.CountB++
+			}
+		}
+		sc.MeanA = meanFP(sumA, sc.CountA)
+		sc.MeanB = meanFP(sumB, sc.CountB)
+
+		if sc.NumRaters >= mfMinRaters {
+			switch {
+			case sc.NoteIntercept >= mfHelpfulIntercept:
+				sc.Status = NoteStatus_HELPFUL
+			case sc.NoteIntercept <= mfNotHelpfulIntercept:
+				sc.Status = NoteStatus_NOT_HELPFUL
+			}
+		}
+		out = append(out, sc)
+	}
+	return out
 }

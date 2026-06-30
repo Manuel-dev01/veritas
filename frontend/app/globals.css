@@ -1,0 +1,13 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: oklch(0.12 0.008 80); }
+::selection { background: oklch(0.74 0.15 152 / 0.3); color: #fff; }
+button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
+a { color: inherit; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-thumb { background: oklch(0.26 0.008 80); }
+
+@keyframes ovBackdrop { from { opacity: 0 } to { opacity: 1 } }
+@keyframes ovLift { from { opacity: 0; transform: translate(-50%, 14px) scale(0.985) } to { opacity: 1; transform: translate(-50%, 0) scale(1) } }
+@keyframes logIn { from { opacity: 0; transform: translateY(-3px) } to { opacity: 1; transform: none } }
+@keyframes vmarquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+@keyframes vbob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(7px) } }
