@@ -193,10 +193,9 @@ func (g *gateway) fold(height uint64, events []rawEvent) {
 			if _, ok := g.notes[id]; !ok {
 				g.notes[id] = &noteRec{ID: id, ClaimID: cid, Author: hex.EncodeToString(x.Author), Body: x.Body, URL: x.Url, Status: x.Status.String(), Height: x.CreatedHeight}
 			}
-			if c := g.claims[cid]; c != nil && !c.noteSet[id] {
-				c.noteSet[id] = true
-				c.Notes = append(c.Notes, g.notes[id])
-			}
+			// Note→claim attachment happens at read time (handleState), NOT here: claim_created and
+			// note_created for the same seed land in ONE block and the events-by-height RPC returns them
+			// in arbitrary order, so the claim may not be folded yet when its note arrives.
 		case *contract.NoteScoredEvent:
 			if n := g.notes[hex.EncodeToString(x.NoteId)]; n != nil {
 				n.Status = x.Status.String()
@@ -252,10 +251,32 @@ func writeJSON(w http.ResponseWriter, v interface{}) {
 func (g *gateway) handleState(w http.ResponseWriter, _ *http.Request) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
+	// Group notes under their claim here (not during fold), so attachment is independent of the order
+	// events arrive within a block. Notes sorted by (height, id) for stable display.
+	nids := make([]string, 0, len(g.notes))
+	for id := range g.notes {
+		nids = append(nids, id)
+	}
+	sort.Slice(nids, func(i, j int) bool {
+		a, b := g.notes[nids[i]], g.notes[nids[j]]
+		if a.Height != b.Height {
+			return a.Height < b.Height
+		}
+		return nids[i] < nids[j]
+	})
+	byClaim := map[string][]*noteRec{}
+	for _, id := range nids {
+		n := g.notes[id]
+		byClaim[n.ClaimID] = append(byClaim[n.ClaimID], n)
+	}
 	claims := make([]*claimRec, 0, len(g.claimOrder))
 	// newest first (board reads top-down)
 	for i := len(g.claimOrder) - 1; i >= 0; i-- {
-		claims = append(claims, g.claims[g.claimOrder[i]])
+		c := g.claims[g.claimOrder[i]]
+		if c.Notes = byClaim[c.ID]; c.Notes == nil {
+			c.Notes = []*noteRec{}
+		}
+		claims = append(claims, c)
 	}
 	logCopy := append([]logLine(nil), g.log...)
 	writeJSON(w, map[string]interface{}{"height": g.height, "claims": claims, "log": logCopy})

@@ -338,7 +338,7 @@ function LiveOverlay({ height, claims, log, close }: { height: number; claims: C
 
 function Panel({ width, close, children }: { width: number; close: () => void; children: React.ReactNode }) {
   return (
-    <div style={css(`position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:${width}px;max-width:calc(100vw - 48px);max-height:calc(100vh - 60px);overflow-y:auto;background:oklch(0.155 0.008 80);border:1px solid oklch(0.34 0.008 80);box-shadow:0 40px 100px rgba(0,0,0,.6);z-index:9;animation:ovLift .22s cubic-bezier(.2,.7,.3,1);`)}>
+    <div style={css(`position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:${width}px;max-width:calc(100vw - 48px);max-height:calc(100vh - 60px);overflow-y:auto;background:oklch(0.155 0.008 80);border:1px solid oklch(0.34 0.008 80);box-shadow:0 40px 100px rgba(0,0,0,.6);z-index:9;animation:ovLift .34s cubic-bezier(.16,1,.3,1) both;will-change:transform,opacity;`)}>
       {children}
     </div>
   );
