@@ -94,6 +94,7 @@ type gateway struct {
 	log         []logLine
 	logSeen     map[string]bool
 	nonce       uint64
+	lastSeedUnix int64 // debounce for /api/seed (guarded by mu)
 }
 
 func newGateway(cli *Client, valKeyPath string) *gateway {
@@ -456,6 +457,20 @@ func (g *gateway) rateAs(id string, noteID []byte, v contract.RatingValue) {
 // posts a fresh target note pre-rated by camp A only — so a single camp-B rating bridges it to
 // HELPFUL. Synchronous (~20 txs); they land over the next blocks and the MF picks up polarity.
 func (g *gateway) handleSeed(w http.ResponseWriter, _ *http.Request) {
+	// Debounce: /api/seed fires ~20 signed txs; without a guard a loop could flood the mempool and
+	// drain the demo identities. Behind the ngrok tunnel every caller shares one source IP, so a
+	// global cooldown (not per-IP) is the effective control.
+	const seedCooldown = 45 // seconds
+	g.mu.Lock()
+	now := time.Now().Unix()
+	if wait := seedCooldown - (now - g.lastSeedUnix); g.lastSeedUnix != 0 && wait > 0 {
+		g.mu.Unlock()
+		httpErr(w, fmt.Errorf("seed was run recently; wait ~%ds before re-seeding", wait))
+		return
+	}
+	g.lastSeedUnix = now
+	g.mu.Unlock()
+
 	H, X := contract.RatingValue_RATING_HELPFUL, contract.RatingValue_RATING_NOT_HELPFUL
 	A := []string{"a1", "a2", "a3"}
 	B := []string{"b1", "b2", "b3"}
@@ -500,7 +515,12 @@ func (g *gateway) handleSeed(w http.ResponseWriter, _ *http.Request) {
 	})
 }
 
+// maxBodyBytes caps request bodies so an unauthenticated caller can't exhaust memory with a huge
+// POST. 64 KB comfortably covers any claim/note (plugin field bounds are 280/560/2048).
+const maxBodyBytes = 64 << 10
+
 func decodeBody(w http.ResponseWriter, r *http.Request, v interface{}) bool {
+	r.Body = http.MaxBytesReader(w, r.Body, maxBodyBytes)
 	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
 		httpErr(w, fmt.Errorf("bad json: %w", err))
 		return false

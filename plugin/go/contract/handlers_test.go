@@ -225,6 +225,8 @@ func TestCheckMessageRateNote(t *testing.T) {
 		{"bad address", &MessageRateNote{Rater: []byte{1}, NoteId: noteID, Value: RatingValue_RATING_HELPFUL}, true},
 		{"empty note id", &MessageRateNote{Rater: good, Value: RatingValue_RATING_HELPFUL}, true},
 		{"unspecified value", &MessageRateNote{Rater: good, NoteId: noteID, Value: RatingValue_RATING_UNSPECIFIED}, true},
+		{"somewhat value", &MessageRateNote{Rater: good, NoteId: noteID, Value: RatingValue_RATING_SOMEWHAT}, false},
+		{"out-of-range value", &MessageRateNote{Rater: good, NoteId: noteID, Value: RatingValue(99)}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

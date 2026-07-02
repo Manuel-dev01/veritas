@@ -302,6 +302,16 @@ func (c *Contract) DeliverMessageSubmitNote(msg *MessageSubmitNote, fee, created
 	return &PluginDeliverResponse{Events: []*Event{ev}}
 }
 
+// isValidRating reports whether v is one of the defined rating enum values. Pure/deterministic.
+func isValidRating(v RatingValue) bool {
+	switch v {
+	case RatingValue_RATING_HELPFUL, RatingValue_RATING_SOMEWHAT, RatingValue_RATING_NOT_HELPFUL:
+		return true
+	default:
+		return false
+	}
+}
+
 // CheckMessageRateNote statelessly validates a 'rate_note' message (Phase 1: validation only).
 func (c *Contract) CheckMessageRateNote(msg *MessageRateNote) *PluginCheckResponse {
 	if len(msg.Rater) != 20 {
@@ -310,7 +320,10 @@ func (c *Contract) CheckMessageRateNote(msg *MessageRateNote) *PluginCheckRespon
 	if len(msg.NoteId) == 0 {
 		return &PluginCheckResponse{Error: ErrNoteNotFound()}
 	}
-	if msg.Value == RatingValue_RATING_UNSPECIFIED {
+	// Reject any value outside the defined enum {HELPFUL, SOMEWHAT, NOT_HELPFUL}. Previously only
+	// UNSPECIFIED (0) was rejected, so an out-of-range value (4, 99, …) passed CheckTx, paid a fee,
+	// and persisted an inert rating the scorer silently skips. Deterministic: pure enum compare.
+	if !isValidRating(msg.Value) {
 		return &PluginCheckResponse{Error: ErrInvalidRatingValue()}
 	}
 	return &PluginCheckResponse{AuthorizedSigners: [][]byte{msg.Rater}}
@@ -322,6 +335,12 @@ func (c *Contract) CheckMessageRateNote(msg *MessageRateNote) *PluginCheckRespon
 // so a genuine re-vote (new nonce -> new tx) overwrites the same key; exact replays are rejected
 // upstream by the FSM's tx-hash de-duplication.
 func (c *Contract) DeliverMessageRateNote(msg *MessageRateNote, fee, createdHeight uint64) *PluginDeliverResponse {
+	// Re-validate the rating enum before charging a fee or persisting — mirrors CheckMessageRateNote
+	// so an out-of-range value can never write an inert rating + dirty marker even if CheckTx is
+	// bypassed. Deterministic: pure enum compare.
+	if !isValidRating(msg.Value) {
+		return &PluginDeliverResponse{Error: ErrInvalidRatingValue()}
+	}
 	var (
 		raterKey                   = KeyForAccount(msg.Rater)
 		feePoolKey                 = KeyForFeePool(c.Config.ChainId)
